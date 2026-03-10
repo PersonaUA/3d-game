@@ -131,9 +131,27 @@ async function main() {
   ].join(';');
   document.body.appendChild(hint);
 
+  // На мобиле скрываем десктопные подсказки
+  if (input.joystick.isMobile) {
+    hint.style.display = 'none';
+    const controlsHint = document.getElementById('controls-hint');
+    if (controlsHint) controlsHint.style.display = 'none';
+    const tunePanel = document.getElementById('tune-panel');
+    if (tunePanel) tunePanel.style.display = 'none';
+  }
+
   // ── Game loop ─────────────────────────────────────────────────────────────
   scene.registerBeforeRender(() => {
-    const dt     = engine.getDeltaTime() / 1000;
+    const dt = engine.getDeltaTime() / 1000;
+
+    // Правый джойстик — вращение камеры (аналог mousemove)
+    if (input.joystick.isMobile) {
+      const { dx, dy } = input.joystick.flushCamDelta();
+      camYaw   += dx;
+      camPitch += dy;
+      camPitch  = Math.max(CAM.minPitch, Math.min(CAM.maxPitch, camPitch));
+    }
+
     const result = character.update(input.state, camYaw);
     updateHUD({ ...result, camYaw }, engine);
     if (currentSceneInst) currentSceneInst.update(dt);

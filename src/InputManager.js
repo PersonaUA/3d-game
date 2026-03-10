@@ -1,3 +1,5 @@
+import { JoystickManager } from './JoystickManager.js';
+
 const KEY_UI_MAP = {
   KeyW: 'key-w', KeyA: 'key-a', KeyS: 'key-s', KeyD: 'key-d',
   ShiftLeft: 'key-shift', ShiftRight: 'key-shift',
@@ -5,13 +7,15 @@ const KEY_UI_MAP = {
 };
 
 export class InputManager {
-  #keys = {};
+  #keys     = {};
+  joystick  = null;
 
   constructor() {
+    this.joystick = new JoystickManager();
+
     window.addEventListener('keydown', e => {
       this.#keys[e.code] = true;
       this.#updateUI(e.code, true);
-      // предотвращаем скролл страницы пробелом
       if (e.code === 'Space') e.preventDefault();
     });
     window.addEventListener('keyup', e => {
@@ -21,13 +25,26 @@ export class InputManager {
   }
 
   get state() {
-    return {
+    const kb = {
       fwd:    !!this.#keys['KeyW'],
       back:   !!this.#keys['KeyS'],
       left:   !!this.#keys['KeyA'],
       right:  !!this.#keys['KeyD'],
       sprint: !!(this.#keys['ShiftLeft'] || this.#keys['ShiftRight']),
       jump:   !!this.#keys['Space'],
+    };
+
+    if (!this.joystick.isMobile) return kb;
+
+    // Мобиль — мержим клавиатуру и джойстик
+    const joy = this.joystick.moveState;
+    return {
+      fwd:    kb.fwd    || joy.fwd,
+      back:   kb.back   || joy.back,
+      left:   kb.left   || joy.left,
+      right:  kb.right  || joy.right,
+      sprint: kb.sprint || joy.sprint,
+      jump:   kb.jump,
     };
   }
 
