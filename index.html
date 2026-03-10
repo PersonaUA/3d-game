@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Character Controller</title>
+  <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+
+  <div id="loading-screen">
+    <div class="loader-title">Initializing</div>
+    <div class="loader-bar-bg"><div class="loader-bar" id="loader-bar"></div></div>
+    <div class="loader-sub" id="loader-sub">Loading engine...</div>
+  </div>
+
+  <canvas id="renderCanvas"></canvas>
+  <div id="scanlines"></div>
+
+  <div id="ui-overlay">
+    <div id="hud">
+      <div><span class="label">STATE &nbsp;</span><span id="state-indicator" class="idle">IDLE</span></div>
+      <div style="margin-top:6px"><span class="label">SCENE &nbsp;</span><span class="value" id="scene-display">1</span></div>
+      <div><span class="label">POS &nbsp;&nbsp;</span><span class="value" id="pos-display">0.0, 0.0</span></div>
+      <div><span class="label">SPEED &nbsp;</span><span class="value" id="speed-display">0.000</span></div>
+      <div style="margin-top:6px"><span class="label">YAW &nbsp;&nbsp;</span><span class="value" id="yaw-display">0.00</span></div>
+      <div><span class="label">CAM YAW</span><span class="value" id="camyaw-display">0.00</span></div>
+      <div style="margin-top:6px"><span class="label">FPS &nbsp;&nbsp;</span><span class="value" id="fps-display">0</span></div>
+    </div>
+
+    <div id="controls-hint">
+      <div class="key" id="key-w">W</div>
+      <div style="display:flex; flex-direction:column; gap:4px">
+        <div style="display:flex; gap:6px">
+          <div class="key" id="key-a">A</div>
+          <div class="key" id="key-s">S</div>
+          <div class="key" id="key-d">D</div>
+        </div>
+      </div>
+      <div class="key-sep" style="margin-left:8px">·</div>
+      <div class="key wide" id="key-shift">SHIFT</div>
+      <div class="key-sep">·</div>
+      <div class="key wide" id="key-space">SPACE</div>
+    </div>
+
+    <div id="tune-panel">
+      <div class="tune-title">⚙ MOTION TUNING <span id="tune-toggle" style="cursor:pointer;opacity:0.5;font-size:9px;margin-left:6px">[H] HIDE</span></div>
+      <div class="tune-row">
+        <span class="tune-label">WALK SPEED</span>
+        <input type="range" id="tune-walkSpeed" min="0.01" max="0.15" step="0.001" value="0.065">
+        <span class="tune-val" id="tune-walkSpeed-val">0.065</span>
+      </div>
+      <div class="tune-row">
+        <span class="tune-label">WALK ANIM ×</span>
+        <input type="range" id="tune-walkAnim" min="0.2" max="3.0" step="0.05" value="1.0">
+        <span class="tune-val" id="tune-walkAnim-val">1.00</span>
+      </div>
+      <div class="tune-row">
+        <span class="tune-label">RUN SPEED</span>
+        <input type="range" id="tune-runSpeed" min="0.05" max="0.30" step="0.005" value="0.13">
+        <span class="tune-val" id="tune-runSpeed-val">0.130</span>
+      </div>
+      <div class="tune-row">
+        <span class="tune-label">RUN ANIM ×</span>
+        <input type="range" id="tune-runAnim" min="0.2" max="4.0" step="0.05" value="1.4">
+        <span class="tune-val" id="tune-runAnim-val">1.40</span>
+      </div>
+      <div class="tune-row">
+        <span class="tune-label">STRAFE SPD</span>
+        <input type="range" id="tune-strafeSpeed" min="0.01" max="0.15" step="0.001" value="0.04">
+        <span class="tune-val" id="tune-strafeSpeed-val">0.040</span>
+      </div>
+      <div class="tune-row">
+        <span class="tune-label">STRAFE ANIM ×</span>
+        <input type="range" id="tune-strafeAnim" min="0.2" max="3.0" step="0.05" value="1.0">
+        <span class="tune-val" id="tune-strafeAnim-val">1.00</span>
+      </div>
+      <div class="tune-hint">Copy final values to config.js → CHAR / ANIM</div>
+    </div>
+
+  <!-- BabylonJS UMD — must load before ES modules that reference BABYLON global -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
