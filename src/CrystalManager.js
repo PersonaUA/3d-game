@@ -18,6 +18,45 @@ const FLOAT_SPEED    = 1.2;
 const FLOAT_AMP      = 0.25;
 const ROTATE_SPEED   = 1.0;
 
+/** Генерирует стеклянный звон через Web Audio API — без внешних файлов */
+function playCollectSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Основной тон — высокий синус
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(1800, ctx.currentTime);
+    osc1.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.3);
+    gain1.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+
+    // Второй тон — октавой выше, быстро затухает (стеклянный призвук)
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(3600, ctx.currentTime);
+    osc2.frequency.exponentialRampToValueAtTime(2400, ctx.currentTime + 0.15);
+    gain2.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+
+    osc1.start(ctx.currentTime);
+    osc1.stop(ctx.currentTime + 0.4);
+    osc2.start(ctx.currentTime);
+    osc2.stop(ctx.currentTime + 0.2);
+
+    // Закрываем контекст после воспроизведения
+    setTimeout(() => ctx.close(), 500);
+  } catch (e) {
+    // Тихо игнорируем если браузер не поддерживает
+  }
+}
+
 export class CrystalManager {
   constructor(scene, spawnPoints) {
     this._scene          = scene;
@@ -136,6 +175,7 @@ export class CrystalManager {
     crystal.mesh.setEnabled(false);
     this._totalCollected++;
     this._updateHUD();
+    playCollectSound(); // 🔔
     this._save();
   }
 
