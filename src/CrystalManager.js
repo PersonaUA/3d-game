@@ -80,7 +80,8 @@ export class CrystalManager {
       mesh.isVisible = true;
       mesh.setEnabled(true);
       mesh.scaling  = new BABYLON.Vector3(0.005, 0.005, 0.005);
-      mesh.rotation = new BABYLON.Vector3(0, 0, Math.PI);
+      //mesh.rotation = new BABYLON.Vector3(0, 0, Math.PI);
+      mesh.rotation = new BABYLON.Vector3(Math.PI, 0, 0);
     }
   }
 
