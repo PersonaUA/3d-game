@@ -56,10 +56,22 @@ export class CrystalManager {
       root.scaling  = new BABYLON.Vector3(0.005, 0.005, 0.005);
       //root.rotation = new BABYLON.Vector3(Math.PI, 0, 0); // острие вниз
 
+
+
       // Все дочерние меши тоже делаем видимыми
       result.meshes.forEach(m => {
         m.isVisible       = true;
         m.checkCollisions = false;
+
+        if (m.name !== '__root__') {
+          const mat         = new BABYLON.PBRMaterial(`diamondMat_${idx}`, this._scene);
+          mat.albedoColor   = new BABYLON.Color3(0.6, 0.85, 1.0);  // голубоватый
+          mat.metallic      = 0.0;
+          mat.roughness     = 0.0;   // идеально гладкий — максимальные отражения
+          mat.alpha         = 0.85;  // немного прозрачный
+          mat.backFaceCulling = false;
+          m.material = mat;
+        }
       });
 
       console.log(`[crystal ${idx}] ok | pos: ${pt.x},${baseY},${pt.z}`);
