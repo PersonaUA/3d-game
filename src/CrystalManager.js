@@ -41,20 +41,24 @@ export class CrystalManager {
 
   /** Загрузить шаблон модели один раз */
   async _loadTemplate() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       BABYLON.SceneLoader.ImportMesh(
         '', CRYSTAL_MODEL, '', this._scene,
         (meshes) => {
-          // Скрываем шаблон — будем клонировать
+          console.log('[crystal] loaded meshes:', meshes.map(m => m.name));
+          // Скрываем все — будем клонировать геометрию (не __root__)
+          this._templateMeshes = meshes.filter(m => m.name !== '__root__');
+          this._templateRoot   = meshes.find(m => m.name === '__root__') || meshes[0];
+
           meshes.forEach(m => { m.isVisible = false; m.setEnabled(false); });
-          this._templateMesh = meshes[0];
+          console.log('[crystal] template geometry meshes:', this._templateMeshes.map(m => m.name));
           resolve();
         },
         null,
         (_, msg) => {
           console.warn('[CrystalManager] Failed to load diamond.glb:', msg);
-          // Фоллбэк — создаём простой октаэдр
-          this._templateMesh = null;
+          this._templateMeshes = [];
+          this._templateRoot   = null;
           resolve();
         }
       );
@@ -66,38 +70,24 @@ export class CrystalManager {
     const baseY = pt.y ?? 1.0;
     let mesh;
 
-    if (this._templateMesh) {
-      const children = this._templateMesh.getChildMeshes(true);
-      console.log(`[crystal ${idx}] children count:`, children.length);
-      children.forEach((c, i) => {
-        console.log(`[crystal ${idx}] child[${i}]: name=${c.name} isVisible=${c.isVisible} isEnabled=${c.isEnabled()} parent=${c.parent?.name}`);
-      });
+    if (this._templateMeshes && this._templateMeshes.length > 0) {
+      const source = this._templateMeshes[0];
 
-      const child = children[0];
-      if (child) {
-        // Временно включаем чтобы клон получил правильное состояние
-        child.isVisible = true;
-        child.setEnabled(true);
+      // Включаем источник на момент клонирования
+      source.isVisible = true;
+      source.setEnabled(true);
+      mesh = source.clone(`crystal_${idx}`, null);
+      source.isVisible = false;
+      source.setEnabled(false);
 
-        mesh = child.clone(`crystal_${idx}`, null, true);
-        console.log(`[crystal ${idx}] cloned: name=${mesh.name} isVisible=${mesh.isVisible} isEnabled=${mesh.isEnabled()}`);
+      mesh.parent   = null;
+      mesh.isVisible = true;
+      mesh.setEnabled(true);
+      mesh.scaling  = new BABYLON.Vector3(0.005, 0.005, 0.005);
+      mesh.rotation = new BABYLON.Vector3(Math.PI, 0, 0);
+      mesh.position = new BABYLON.Vector3(pt.x, baseY, pt.z);
 
-        // Скрываем шаблон обратно
-        child.isVisible = false;
-        child.setEnabled(false);
-
-        // Настраиваем клон
-        mesh.parent = null;
-        mesh.isVisible = true;
-        mesh.setEnabled(true);
-        mesh.scaling  = new BABYLON.Vector3(0.005, 0.005, 0.005);
-        mesh.rotation = new BABYLON.Vector3(Math.PI, 0, 0);
-        mesh.position = new BABYLON.Vector3(pt.x, baseY, pt.z);
-
-        console.log(`[crystal ${idx}] final: pos=${mesh.position} scaling=${mesh.scaling} visible=${mesh.isVisible} enabled=${mesh.isEnabled()}`);
-      } else {
-        console.warn(`[crystal ${idx}] no child mesh found!`);
-      }
+      console.log(`[crystal ${idx}] spawned at`, pt.x, baseY, pt.z, '| visible:', mesh.isVisible, '| enabled:', mesh.isEnabled());
     }
 
     // Фоллбэк — октаэдр если модель не загрузилась
@@ -197,13 +187,15 @@ export class CrystalManager {
 
   /** Освободить ресурсы при смене сцены */
   dispose() {
-    this._crystals.forEach(c => {
-      c.mesh.dispose();
-    });
+    this._crystals.forEach(c => c.mesh.dispose());
     this._crystals = [];
-    if (this._templateMesh) {
-      this._templateMesh.dispose();
-      this._templateMesh = null;
+    if (this._templateMeshes) {
+      this._templateMeshes.forEach(m => m.dispose());
+      this._templateMeshes = [];
+    }
+    if (this._templateRoot) {
+      this._templateRoot.dispose();
+      this._templateRoot = null;
     }
   }
 
