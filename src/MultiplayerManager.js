@@ -1,5 +1,5 @@
 //import * as Colyseus from "colyseus.js";
-
+console.log('[MP] Colyseus global:', window.Colyseus);
 const { Client } = window.Colyseus;
 
 const COLYSEUS_URL = "wss://3d-game-colyseus.fly.dev";
