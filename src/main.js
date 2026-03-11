@@ -51,6 +51,7 @@ async function main() {
     currentSceneInst  = new SceneClass(scene, shadowGen);
     currentSceneInst.build();
     applySceneSettings(scene, currentSceneInst);
+
     // respawn только если персонаж уже загружен (не при первом вызове)
     if (character) character.respawn(currentSceneInst.spawnPoint);
     currentSceneId = id;
@@ -69,12 +70,17 @@ async function main() {
   }
 
   setProgress(45, 'Building environment...');
-  loadScene(DEFAULT_SCENE);
+  await loadScene(DEFAULT_SCENE);
 
-  // ── Персонаж ──────────────────────────────────────────────────────────────
+  // Персонаж — сначала загружаем
   setProgress(60, 'Loading character...');
   character = new CharacterController({ scene, shadowGen });
   await character.load();
+
+  // Теперь телепортируем — character уже существует ✅
+  if (playerData && (playerData.pos_x !== 0 || playerData.pos_y !== 0)) {
+    character.respawn(new BABYLON.Vector3(playerData.pos_x, 3, playerData.pos_y));
+  }
 
   // ── Input ─────────────────────────────────────────────────────────────────
   setProgress(90, 'Setting up input...');
