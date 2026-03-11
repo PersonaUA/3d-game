@@ -66,7 +66,7 @@ export class AnimationController {
     for (const [key, url] of entries) {
       try {
         this.anims[key] = await loadAnimationGroup(scene, skeleton, url, key);
-        console.log(`[AnimationController] ✓ ${key} loaded`);
+        //console.log(`[AnimationController] ✓ ${key} loaded`);
       } catch (err) {
         console.error(`[AnimationController] ✗ Failed to load "${key}" from ${url}:`, err);
       }
