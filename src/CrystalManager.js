@@ -89,23 +89,24 @@ export class CrystalManager {
     mesh = BABYLON.MeshBuilder.CreatePolyhedron(`crystal_${idx}`, {
       type: 1, size: 0.35,
     }, this._scene);
-    // const mat = new BABYLON.StandardMaterial(`crystalMat_${idx}`, this._scene);
-    // mat.diffuseColor  = new BABYLON.Color3(0.6, 0.1, 1.0);
-    // mat.emissiveColor = new BABYLON.Color3(0.3, 0.0, 0.6);
-    // mat.specularColor = new BABYLON.Color3(1.0, 0.8, 1.0);
-    // mat.specularPower = 32;
-    // mesh.material = mat;
+    
+    const mat = new BABYLON.StandardMaterial(`crystalMat_${idx}`, this._scene);
+    mat.diffuseColor  = new BABYLON.Color3(0.6, 0.1, 1.0);
+    mat.emissiveColor = new BABYLON.Color3(0.3, 0.0, 0.6);
+    mat.specularColor = new BABYLON.Color3(1.0, 0.8, 1.0);
+    mat.specularPower = 32;
+    mesh.material = mat;
 
      // Материал бриллианта
-    const mat = new BABYLON.PBRMaterial(`crystalMat_${idx}`, this._scene);
-    mat.albedoColor       = new BABYLON.Color3(0.4, 0.8, 1.0);  // голубой
-    mat.metallic          = 0.0;
-    mat.roughness         = 0.0;   // идеально гладкий
-    mat.alpha             = 0.7;   // полупрозрачный
-    mat.indexOfRefraction = 2.42;  // показатель преломления бриллианта
-    mat.subSurface.isRefractionEnabled = true;
-    mat.subSurface.refractionIntensity = 0.8;
-    mesh.material = mat;
+    // const mat = new BABYLON.PBRMaterial(`crystalMat_${idx}`, this._scene);
+    // mat.albedoColor       = new BABYLON.Color3(0.4, 0.8, 1.0);  // голубой
+    // mat.metallic          = 0.0;
+    // mat.roughness         = 0.0;   // идеально гладкий
+    // mat.alpha             = 0.7;   // полупрозрачный
+    // mat.indexOfRefraction = 2.42;  // показатель преломления бриллианта
+    // mat.subSurface.isRefractionEnabled = true;
+    // mat.subSurface.refractionIntensity = 0.8;
+    // mesh.material = mat;
 
   }
 
