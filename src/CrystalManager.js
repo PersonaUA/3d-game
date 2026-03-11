@@ -18,10 +18,18 @@ const FLOAT_SPEED    = 1.2;
 const FLOAT_AMP      = 0.25;
 const ROTATE_SPEED   = 1.0;
 
+let _audioCtx = null;
+function getAudioContext() {
+  if (!_audioCtx || _audioCtx.state === 'closed') {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return _audioCtx;
+}
+
 /** Генерирует стеклянный звон через Web Audio API — без внешних файлов */
 function playCollectSound() {
   try {
-    const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx  = getAudioContext();
     const now  = ctx.currentTime;
 
     // Удар — короткий импульс шума (имитация стекла)
@@ -64,7 +72,7 @@ function playCollectSound() {
     osc.start(now);
     osc.stop(now + 0.10);
 
-    setTimeout(() => ctx.close(), 250);
+    //setTimeout(() => ctx.close(), 250);
   } catch (e) {}
 }
 
