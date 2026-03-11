@@ -67,9 +67,18 @@ export class CrystalManager {
     let mesh;
 
     if (this._templateMesh) {
+
+      console.log('[crystal] template mesh name:', this._templateMesh.name);
+      console.log('[crystal] template children:', this._templateMesh.getChildMeshes().length);
+      
       mesh = this._templateMesh.clone(`crystal_${idx}`);
       mesh.setEnabled(true);
       mesh.isVisible = true;
+
+      console.log('[crystal] cloned mesh position:', pt.x, baseY, pt.z);
+      console.log('[crystal] cloned mesh scaling:', mesh.scaling.toString());
+
+
       // Клонируем дочерние меши тоже
       this._templateMesh.getChildMeshes().forEach((child, ci) => {
         const childClone = child.clone(`crystal_${idx}_child_${ci}`);
