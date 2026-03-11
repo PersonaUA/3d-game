@@ -63,58 +63,61 @@ export class CrystalManager {
 
   /** Создать один кристалл в точке спавна */
   _spawnCrystal(pt, idx) {
-  const baseY = pt.y ?? 1.0;
-  let mesh;
+    const baseY = pt.y ?? 1.0;
+    let mesh;
 
-  if (this._templateMesh) {
-    const child = this._templateMesh.getChildMeshes()[0];
-    if (child) {
-      // Сначала включаем шаблон, клонируем, потом снова скрываем
-      child.isVisible = true;
-      child.setEnabled(true);
-      mesh = child.clone(`crystal_${idx}`);
-      child.isVisible = false;
-      child.setEnabled(false);
+    if (this._templateMesh) {
+      const children = this._templateMesh.getChildMeshes(true);
+      console.log(`[crystal ${idx}] children count:`, children.length);
+      children.forEach((c, i) => {
+        console.log(`[crystal ${idx}] child[${i}]: name=${c.name} isVisible=${c.isVisible} isEnabled=${c.isEnabled()} parent=${c.parent?.name}`);
+      });
 
-      mesh.parent = null;
-      mesh.isVisible = true;
-      mesh.setEnabled(true);
-      mesh.scaling  = new BABYLON.Vector3(0.005, 0.005, 0.005);
-      //mesh.rotation = new BABYLON.Vector3(0, 0, Math.PI);
-      //mesh.rotation = new BABYLON.Vector3(Math.PI, 0, 0);
+      const child = children[0];
+      if (child) {
+        // Временно включаем чтобы клон получил правильное состояние
+        child.isVisible = true;
+        child.setEnabled(true);
+
+        mesh = child.clone(`crystal_${idx}`, null, true);
+        console.log(`[crystal ${idx}] cloned: name=${mesh.name} isVisible=${mesh.isVisible} isEnabled=${mesh.isEnabled()}`);
+
+        // Скрываем шаблон обратно
+        child.isVisible = false;
+        child.setEnabled(false);
+
+        // Настраиваем клон
+        mesh.parent = null;
+        mesh.isVisible = true;
+        mesh.setEnabled(true);
+        mesh.scaling  = new BABYLON.Vector3(0.005, 0.005, 0.005);
+        mesh.rotation = new BABYLON.Vector3(Math.PI, 0, 0);
+        mesh.position = new BABYLON.Vector3(pt.x, baseY, pt.z);
+
+        console.log(`[crystal ${idx}] final: pos=${mesh.position} scaling=${mesh.scaling} visible=${mesh.isVisible} enabled=${mesh.isEnabled()}`);
+      } else {
+        console.warn(`[crystal ${idx}] no child mesh found!`);
+      }
     }
+
+    // Фоллбэк — октаэдр если модель не загрузилась
+    if (!mesh) {
+      console.log(`[crystal ${idx}] using fallback polyhedron`);
+      mesh = BABYLON.MeshBuilder.CreatePolyhedron(`crystal_${idx}`, {
+        type: 1, size: 0.35,
+      }, this._scene);
+      const mat = new BABYLON.StandardMaterial(`crystalMat_${idx}`, this._scene);
+      mat.diffuseColor  = new BABYLON.Color3(0.6, 0.1, 1.0);
+      mat.emissiveColor = new BABYLON.Color3(0.3, 0.0, 0.6);
+      mat.specularColor = new BABYLON.Color3(1.0, 0.8, 1.0);
+      mat.specularPower = 32;
+      mesh.material = mat;
+      mesh.position = new BABYLON.Vector3(pt.x, baseY, pt.z);
+    }
+
+    mesh.checkCollisions = false;
+    this._crystals.push({ mesh, baseY, pt, idx, collected: false, respawnAt: 0, time: 0 });
   }
-
-  if (!mesh) {
-    mesh = BABYLON.MeshBuilder.CreatePolyhedron(`crystal_${idx}`, {
-      type: 1, size: 0.35,
-    }, this._scene);
-    
-    const mat = new BABYLON.StandardMaterial(`crystalMat_${idx}`, this._scene);
-    mat.diffuseColor  = new BABYLON.Color3(0.6, 0.1, 1.0);
-    mat.emissiveColor = new BABYLON.Color3(0.3, 0.0, 0.6);
-    mat.specularColor = new BABYLON.Color3(1.0, 0.8, 1.0);
-    mat.specularPower = 32;
-    mesh.material = mat;
-
-     // Материал бриллианта
-    // const mat = new BABYLON.PBRMaterial(`crystalMat_${idx}`, this._scene);
-    // mat.albedoColor       = new BABYLON.Color3(0.4, 0.8, 1.0);  // голубой
-    // mat.metallic          = 0.0;
-    // mat.roughness         = 0.0;   // идеально гладкий
-    // mat.alpha             = 0.7;   // полупрозрачный
-    // mat.indexOfRefraction = 2.42;  // показатель преломления бриллианта
-    // mat.subSurface.isRefractionEnabled = true;
-    // mat.subSurface.refractionIntensity = 0.8;
-    // mesh.material = mat;
-
-  }
-
-  mesh.position = new BABYLON.Vector3(pt.x, baseY, pt.z);
-  mesh.checkCollisions = false;
-
-  this._crystals.push({ mesh, baseY, pt, idx, collected: false, respawnAt: 0, time: 0 });
-}
 
   /**
    * Вызывать каждый кадр из game loop
