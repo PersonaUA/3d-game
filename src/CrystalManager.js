@@ -76,12 +76,12 @@ export class CrystalManager {
     const mesh  = BABYLON.MeshBuilder.CreatePolyhedron(`crystal_fallback_${idx}`, {
       type: 1, size: 0.35,
     }, this._scene);
-    const mat = new BABYLON.StandardMaterial(`crystalMat_${idx}`, this._scene);
-    mat.diffuseColor  = new BABYLON.Color3(0.6, 0.1, 1.0);
-    mat.emissiveColor = new BABYLON.Color3(0.3, 0.0, 0.5);
-    mat.specularColor = new BABYLON.Color3(1.0, 0.8, 1.0);
-    mat.specularPower = 32;
-    mesh.material     = mat;
+    // const mat = new BABYLON.StandardMaterial(`crystalMat_${idx}`, this._scene);
+    // mat.diffuseColor  = new BABYLON.Color3(0.6, 0.1, 1.0);
+    // mat.emissiveColor = new BABYLON.Color3(0.3, 0.0, 0.5);
+    // mat.specularColor = new BABYLON.Color3(1.0, 0.8, 1.0);
+    // mat.specularPower = 32;
+    // mesh.material     = mat;
     mesh.position     = new BABYLON.Vector3(pt.x, baseY, pt.z);
     mesh.checkCollisions = false;
     this._crystals.push({ mesh, baseY, pt, idx, collected: false, respawnAt: 0, time: 0 });
