@@ -6,6 +6,10 @@
 const API_URL = 'https://3d-game-api.fly.dev';
 
 function getInitData() {
+
+  console.log('[api] Telegram WebApp:', window.Telegram?.WebApp);
+  console.log('[api] initData:', window.Telegram?.WebApp?.initData);
+
   // В Telegram Mini App
   if (window.Telegram?.WebApp?.initData) {
     return window.Telegram.WebApp.initData;
