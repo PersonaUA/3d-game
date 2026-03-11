@@ -54,7 +54,7 @@ export class CrystalManager {
       root.setEnabled(true);
       root.position = new BABYLON.Vector3(pt.x, baseY, pt.z);
       root.scaling  = new BABYLON.Vector3(0.005, 0.005, 0.005);
-      root.rotation = new BABYLON.Vector3(Math.PI, 0, 0); // острие вниз
+      //root.rotation = new BABYLON.Vector3(Math.PI, 0, 0); // острие вниз
 
       // Все дочерние меши тоже делаем видимыми
       result.meshes.forEach(m => {
