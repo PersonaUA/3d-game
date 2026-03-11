@@ -76,6 +76,7 @@ export class CrystalManager {
         mesh.isVisible = true;
         // Подбери scaling под размер своей модели
         mesh.scaling = new BABYLON.Vector3(0.002, 0.002, 0.002);
+        mesh.rotation  = new BABYLON.Vector3(Math.PI, 0, 0); // острие вниз
       }
     }
 
@@ -93,6 +94,7 @@ export class CrystalManager {
     }
 
     mesh.position = new BABYLON.Vector3(pt.x, baseY, pt.z);
+    
     mesh.checkCollisions = false;
 
     this._crystals.push({ mesh, baseY, pt, idx, collected: false, respawnAt: 0, time: 0 });
