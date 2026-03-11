@@ -69,6 +69,14 @@ export class CrystalManager {
     if (this._templateMesh) {
       // Клонируем дочерний меш напрямую — __root__ пустой, геометрия в child
       const child = this._templateMesh.getChildMeshes()[0];
+
+      console.log('[crystal] child name:', child?.name);
+      console.log('[crystal] child isVisible:', child?.isVisible);
+      console.log('[crystal] child isEnabled:', child?.isEnabled());
+      console.log('[crystal] child scaling:', child?.scaling.toString());
+      console.log('[crystal] child position:', child?.position.toString());
+      console.log('[crystal] child getBoundingInfo:', child?.getBoundingInfo().boundingBox.extendSize.toString());
+
       if (child) {
         mesh = child.clone(`crystal_${idx}`);
         mesh.parent = null;
