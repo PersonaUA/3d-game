@@ -58,9 +58,9 @@ async function main() {
     if (el) el.textContent = `SCENE ${id}`;
 
     // Спавним кристаллы (пока только для сцены 1)
-    //const spawns = id === 1 ? CRYSTAL_SPAWNS_SCENE_1 : [];
+    const spawns = id === 1 ? CRYSTAL_SPAWNS_SCENE_1 : [];
     
-    const spawns = []; // временно отключены
+    //const spawns = []; // временно отключены
     
     if (spawns.length > 0) {
       crystalManager = new CrystalManager(scene, spawns);
