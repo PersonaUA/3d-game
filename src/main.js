@@ -7,6 +7,7 @@ import { CAM, CHAR, ANIM }                  from './config.js';
 import { SCENES, DEFAULT_SCENE }           from './scenes/index.js';
 import { CrystalManager }                  from './CrystalManager.js';
 import { loadPlayer }                      from './api.js';
+import { MultiplayerManager } from './MultiplayerManager.js';
 
 async function main() {
   const canvas = document.getElementById('renderCanvas');
@@ -81,6 +82,12 @@ async function main() {
   if (playerData && (playerData.pos_x !== 0 || playerData.pos_y !== 0)) {
     character.respawn(new BABYLON.Vector3(playerData.pos_x, 3, playerData.pos_y));
   }
+
+
+  // После character.load():
+  const mp = new MultiplayerManager(scene, shadowGen);
+  await mp.connect(playerData?.username ?? 'player');
+
 
   // ── Input ─────────────────────────────────────────────────────────────────
   setProgress(90, 'Setting up input...');
@@ -189,6 +196,10 @@ async function main() {
     }
 
     const result = character.update(input.state, camYaw);
+
+    mp.sendPosition(character.position, camYaw, result.state, performance.now()); // MULTIPLAYER
+
+
     updateHUD({ ...result, camYaw }, engine);
     if (currentSceneInst) currentSceneInst.update(dt);
     if (crystalManager)   crystalManager.update(character.position, dt);
