@@ -1,10 +1,5 @@
 // ─── Asset paths ─────────────────────────────────────────────────────────────
 // Place your files in the matching folders:
-//   assets/models/timmy.glb
-//   assets/animations/idle.glb
-//   assets/animations/walking.glb
-//   assets/animations/running.glb
-//   assets/animations/jumping.glb
 
 export const ASSETS = {
   character: 'assets/models/timmy5.glb',
@@ -13,7 +8,7 @@ export const ASSETS = {
     walk:        'assets/animations/walking.glb',
     run:         'assets/animations/running.glb',
     jump:        'assets/animations/jumping.glb',
-    // Скачай с Mixamo и раскомментируй когда будут готовы:
+    
     walkBack:    'assets/animations/walking_back.glb',
     strafeLeft:  'assets/animations/strafe_left.glb',
     strafeRight: 'assets/animations/strafe_right.glb',
