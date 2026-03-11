@@ -13,12 +13,49 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a0f; f
   z-index: 10;
 }
 
-/* ── HUD ── */
+/* ── HUD Panel ── */
 #hud {
   position: absolute; top: 20px; left: 20px;
-  color: #00ffcc; font-size: 11px;
+  background: #0a0c14ee; border: 1px solid #00ffcc33;
+  border-radius: 4px; padding: 12px 14px;
+  min-width: 200px; pointer-events: none;
+  font-family: 'Courier New', monospace;
+  box-shadow: 0 0 20px #00000088, inset 0 0 40px #00ffcc06;
+}
+.hud-title {
+  color: #00ffcc; font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  margin-bottom: 10px; text-shadow: 0 0 8px #00ffcc66;
+}
+.hud-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  gap: 12px; margin-bottom: 6px;
+}
+.hud-label {
+  color: #ffffff44; font-size: 9px;
   letter-spacing: 0.12em; text-transform: uppercase;
-  line-height: 1.8; text-shadow: 0 0 10px #00ffcc88;
+  flex-shrink: 0;
+}
+.hud-value {
+  color: #00ffcc; font-size: 10px;
+  font-weight: bold; text-align: right;
+}
+.hud-divider {
+  border-top: 1px solid #ffffff10;
+  margin: 10px 0;
+}
+.hud-crystals {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 8px;
+}
+.hud-crystal-icon {
+  font-size: 14px;
+}
+.hud-crystal-count {
+  color: #00ffcc; font-size: 16px;
+  font-weight: bold; letter-spacing: 0.1em;
+  text-shadow: 0 0 12px #00ffccaa;
 }
 #hud .label { color: #ffffff44; font-size: 10px; }
 #hud .value { color: #00ffcc; font-weight: bold; }
