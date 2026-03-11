@@ -79,7 +79,7 @@ export class CrystalManager {
       mesh.parent = null;
       mesh.isVisible = true;
       mesh.setEnabled(true);
-      mesh.scaling  = new BABYLON.Vector3(0.5, 0.5, 0.5);
+      mesh.scaling  = new BABYLON.Vector3(0.005, 0.005, 0.005);
       mesh.rotation = new BABYLON.Vector3(Math.PI, 0, 0); // острие вниз
     }
   }
