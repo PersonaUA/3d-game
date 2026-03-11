@@ -21,40 +21,50 @@ const ROTATE_SPEED   = 1.0;
 /** Генерирует стеклянный звон через Web Audio API — без внешних файлов */
 function playCollectSound() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+    const now  = ctx.currentTime;
 
-    // Основной тон — высокий синус
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(1800, ctx.currentTime);
-    osc1.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.3);
-    gain1.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
+    // Удар — короткий импульс шума (имитация стекла)
+    const bufferSize = ctx.sampleRate * 0.05;
+    const buffer     = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data       = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 8);
+    }
+    const noise     = ctx.createBufferSource();
+    noise.buffer    = buffer;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.06, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
 
-    // Второй тон — октавой выше, быстро затухает (стеклянный призвук)
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(3600, ctx.currentTime);
-    osc2.frequency.exponentialRampToValueAtTime(2400, ctx.currentTime + 0.15);
-    gain2.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
+    // Полосовой фильтр — оставляем только высокие частоты стекла
+    const filter           = ctx.createBiquadFilter();
+    filter.type            = 'bandpass';
+    filter.frequency.value = 4000;
+    filter.Q.value         = 0.8;
 
-    osc1.start(ctx.currentTime);
-    osc1.stop(ctx.currentTime + 0.4);
-    osc2.start(ctx.currentTime);
-    osc2.stop(ctx.currentTime + 0.2);
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
 
-    // Закрываем контекст после воспроизведения
-    setTimeout(() => ctx.close(), 500);
-  } catch (e) {
-    // Тихо игнорируем если браузер не поддерживает
-  }
+    // Тихий резонанс после удара
+    const osc      = ctx.createOscillator();
+    const oscGain  = ctx.createGain();
+    osc.type       = 'sine';
+    osc.frequency.setValueAtTime(2200, now);
+    osc.frequency.exponentialRampToValueAtTime(1800, now + 0.25);
+    oscGain.gain.setValueAtTime(0.04, now);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    osc.connect(oscGain);
+    oscGain.connect(ctx.destination);
+
+    noise.start(now);
+    noise.stop(now + 0.05);
+    osc.start(now);
+    osc.stop(now + 0.25);
+
+    setTimeout(() => ctx.close(), 400);
+  } catch (e) {}
 }
 
 export class CrystalManager {
