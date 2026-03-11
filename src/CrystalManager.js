@@ -75,7 +75,7 @@ export class CrystalManager {
         mesh.setEnabled(true);
         mesh.isVisible = true;
         // Подбери scaling под размер своей модели
-        mesh.scaling = new BABYLON.Vector3(0.002, 0.002, 0.002);
+        mesh.scaling = new BABYLON.Vector3(0.002, 0.002, -0.002);
         mesh.rotation  = new BABYLON.Vector3(Math.PI, 0, 0); // острие вниз
       }
     }
