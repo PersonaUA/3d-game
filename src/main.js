@@ -5,6 +5,8 @@ import { InputManager }                    from './InputManager.js';
 import { updateHUD }                       from './hud.js';
 import { CAM, CHAR, ANIM }                  from './config.js';
 import { SCENES, DEFAULT_SCENE }           from './scenes/index.js';
+import { CrystalManager }                  from './CrystalManager.js';
+import { loadPlayer }                      from './api.js';
 
 async function main() {
   const canvas = document.getElementById('renderCanvas');
@@ -19,13 +21,31 @@ async function main() {
   setProgress(30, 'Setting up lights...');
   const { shadowGen } = createLights(scene);
 
-  // ── Загрузка сцены ────────────────────────────────────────────────────────
+  // ── Загрузка данных игрока из БД ─────────────────────────────────────────
+  setProgress(15, 'Loading player data...');
+  const playerData = await loadPlayer();
+  const savedCrystals = playerData?.crystals ?? 0;
+
+  // ── Точки спавна кристаллов (для сцены 1) ────────────────────────────────
+  const CRYSTAL_SPAWNS_SCENE_1 = [
+    { x:  6,  z:  6,  y: 1.0 },
+    { x: -6,  z:  6,  y: 1.0 },
+    { x:  6,  z: -6,  y: 1.0 },
+    { x: -6,  z: -6,  y: 1.0 },
+    { x:  0,  z: 10,  y: 1.0 },
+    { x: 10,  z:  0,  y: 1.0 },
+    { x: -10, z:  0,  y: 1.0 },
+    { x:  4,  z:  4,  y: 2.0 },  // на платформе
+  ];
+
+  let crystalManager = null;
   let currentSceneId   = DEFAULT_SCENE;
   let currentSceneInst = null;
   let character        = null;  // объявляем заранее — loadScene может обратиться до load()
 
-  function loadScene(id) {
+  async function loadScene(id) {
     if (currentSceneInst) currentSceneInst.dispose();
+    if (crystalManager)   { crystalManager.dispose(); crystalManager = null; }
     const SceneClass  = SCENES[id];
     if (!SceneClass) return;
     currentSceneInst  = new SceneClass(scene, shadowGen);
@@ -36,6 +56,13 @@ async function main() {
     currentSceneId = id;
     const el = document.getElementById('scene-display');
     if (el) el.textContent = `SCENE ${id}`;
+
+    // Спавним кристаллы (пока только для сцены 1)
+    const spawns = id === 1 ? CRYSTAL_SPAWNS_SCENE_1 : [];
+    if (spawns.length > 0) {
+      crystalManager = new CrystalManager(scene, spawns);
+      await crystalManager.init(savedCrystals);
+    }
   }
 
   setProgress(45, 'Building environment...');
@@ -155,6 +182,7 @@ async function main() {
     const result = character.update(input.state, camYaw);
     updateHUD({ ...result, camYaw }, engine);
     if (currentSceneInst) currentSceneInst.update(dt);
+    if (crystalManager)   crystalManager.update(character.position, dt);
 
     const cp     = character.position;
     const target = new BABYLON.Vector3(cp.x, cp.y + CAM.heightOffset, cp.z);

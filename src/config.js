@@ -7,7 +7,7 @@
 //   assets/animations/jumping.glb
 
 export const ASSETS = {
-  character: 'assets/models/timmy.glb',
+  character: 'assets/models/timmy5.glb',
   animations: {
     idle:        'assets/animations/idle.glb',
     walk:        'assets/animations/walking.glb',
