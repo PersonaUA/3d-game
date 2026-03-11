@@ -1,4 +1,6 @@
-import * as Colyseus from "colyseus.js";
+//import * as Colyseus from "colyseus.js";
+
+const { Client } = window.Colyseus;
 
 const COLYSEUS_URL = "wss://3d-game-colyseus.fly.dev";
 const SEND_INTERVAL = 50; // ms — отправка позиции 20 раз в секунду
@@ -15,7 +17,8 @@ export class MultiplayerManager {
   }
 
   async connect(username) {
-    this._client = new Colyseus.Client(COLYSEUS_URL);
+    //this._client = new Colyseus.Client(COLYSEUS_URL);
+    this._client = new Client(COLYSEUS_URL);
 
     try {
       this._room = await this._client.joinOrCreate("global_room", { username });
