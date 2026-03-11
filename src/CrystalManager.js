@@ -65,11 +65,14 @@ export class CrystalManager {
 
         if (m.name !== '__root__') {
           const mat         = new BABYLON.PBRMaterial(`diamondMat_${idx}`, this._scene);
-          mat.albedoColor   = new BABYLON.Color3(0.6, 0.85, 1.0);  // голубоватый
-          mat.metallic      = 0.0;
-          mat.roughness     = 0.0;   // идеально гладкий — максимальные отражения
-          mat.alpha         = 0.85;  // немного прозрачный
+          mat.albedoColor   = new BABYLON.Color3(0.8, 0.9, 1.0);  // голубоватый
+          mat.metallic      = 1.0;
+          mat.roughness     = 0.05;   // идеально гладкий — максимальные отражения
+          mat.alpha         = 0.7;  // немного прозрачный
+          mat.roughness = 0.3;
+          //mat.emissiveColor = new BABYLON.Color3(0.04, 0.1, 0.1);
           mat.backFaceCulling = false;
+          mat.twoSidedLighting = true;
           m.material = mat;
         }
       });

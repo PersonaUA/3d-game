@@ -20,7 +20,7 @@ export function createCamera(scene) {
 
 export function createLights(scene) {
   const hemi = new BABYLON.HemisphericLight('hemi', new BABYLON.Vector3(0, 1, 0), scene);
-  hemi.intensity   = 2.0;
+  hemi.intensity   = 1.5;
   hemi.diffuse     = new BABYLON.Color3(0.8, 0.88, 1.0);
   hemi.groundColor = new BABYLON.Color3(0.3, 0.25, 0.45);
   hemi.specular    = new BABYLON.Color3(0.2, 0.2,  0.3);
@@ -35,6 +35,12 @@ export function createLights(scene) {
   shadowGen.useBlurExponentialShadowMap = true;
   shadowGen.blurKernel = 24;
   shadowGen.darkness   = 0.25;
+
+  scene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
+    'https://assets.babylonjs.com/environments/environmentSpecular.env',
+    scene
+  );
+  scene.environmentIntensity = 0.5;
 
   return { hemi, sun, shadowGen };
 }
