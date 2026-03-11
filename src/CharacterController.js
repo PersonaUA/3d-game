@@ -1,7 +1,11 @@
 import { CHAR, ASSETS } from './config.js';
 import { AnimationController } from './AnimationController.js';
 
+
 export class CharacterController {
+
+  
+
   capsule    = null;
   modelRoot  = null;
   skeleton   = null;

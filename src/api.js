@@ -15,11 +15,11 @@ function getInitData() {
     return window.Telegram.WebApp.initData;
   }
   // Для локальной разработки — фейковые данные
-  //return 'dev_mode';
+  return 'dev_mode';
 
   // Не в Telegram — показываем приглашение
-  showTelegramInvite();
-  return null;
+  // showTelegramInvite();
+  // return null;
 
 }
 

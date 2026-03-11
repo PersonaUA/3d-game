@@ -1,6 +1,5 @@
-//import * as Colyseus from "colyseus.js";
-console.log('[MP] Colyseus global:', window.Colyseus);
-const { Client } = window.Colyseus;
+import { CHAR } from './config.js';
+import { Client, Callbacks } from "@colyseus/sdk";
 
 const COLYSEUS_URL = "wss://3d-game-colyseus.fly.dev";
 const SEND_INTERVAL = 50; // ms — отправка позиции 20 раз в секунду
@@ -17,30 +16,35 @@ export class MultiplayerManager {
   }
 
   async connect(username) {
-    //this._client = new Colyseus.Client(COLYSEUS_URL);
+
     this._client = new Client(COLYSEUS_URL);
 
-    try {
-      this._room = await this._client.joinOrCreate("global_room", { username });
-      this._myId = this._room.sessionId;
-      console.log(`[MP] connected as ${username} (${this._myId})`);
+    this._room = await this._client.joinOrCreate("global_room");
 
-      // Новый игрок появился
-      this._room.state.players.onAdd((player, sessionId) => {
+    const callbacks = Callbacks.get(this._room);
+    
+    this._myId = this._room.sessionId;
+    console.log(`[MP] connected as ${username} (${this._myId})`);
+    
+    callbacks.onAdd("players", (player, sessionId) => {
+
         if (sessionId === this._myId) return;
         console.log(`[MP] player joined: ${sessionId}`);
         this._spawnPeer(sessionId, player);
-      });
 
-      // Игрок ушёл
-      this._room.state.players.onRemove((player, sessionId) => {
+        callbacks.onChange(player, () => {
+            this._updatePeer(sessionId, player);
+        // some property changed inside `entity`
+        });
+    });
+
+    callbacks.onRemove("players", (player, sessionId) => {
+
         console.log(`[MP] player left: ${sessionId}`);
-        this._removePeer(sessionId);
-      });
-
-    } catch (e) {
-      console.warn("[MP] connection failed:", e.message);
-    }
+        this._removePeer(sessionId);    
+        // remove your player entity from the game world!
+    });
+    
   }
 
   // Отправляем свою позицию серверу
@@ -60,15 +64,24 @@ export class MultiplayerManager {
 
   // Спавним меш другого игрока
   async _spawnPeer(sessionId, playerState) {
+
     const result = await BABYLON.SceneLoader.ImportMeshAsync(
       "", "assets/models/", "timmy5.glb", this._scene
     );
 
     const root = result.meshes[0];
     root.name  = `peer_${sessionId}`;
+
+    // Обнуляем quaternion — иначе rotation.y не работает
+    root.rotationQuaternion = null;
+
+
     root.position = new BABYLON.Vector3(
-      playerState.x, playerState.y, playerState.z
+        playerState.x,
+        (playerState.y - CHAR.capsuleHeight / 2), // как в #syncModelToCapsule
+        playerState.z
     );
+
     root.scaling = new BABYLON.Vector3(1, 1, 1);
 
     // Цветовой оттенок чтобы отличать других игроков
@@ -83,13 +96,7 @@ export class MultiplayerManager {
 
     // Тег с именем игрока
     const nameTag = this._createNameTag(playerState.username || sessionId.substring(0, 6));
-
-    this._peers.set(sessionId, { root, nameTag, animGroups: result.animationGroups });
-
-    // Слушаем изменения позиции
-    playerState.onChange(() => {
-      this._updatePeer(sessionId, playerState);
-    });
+    this._peers.set(sessionId, { root, nameTag, animGroups: result.animationGroups });    
   }
 
   _updatePeer(sessionId, state) {
@@ -97,11 +104,19 @@ export class MultiplayerManager {
     if (!peer) return;
 
     // Плавное движение через lerp
-    const target = new BABYLON.Vector3(state.x, state.y, state.z);
+    //const target = new BABYLON.Vector3(state.x, state.y, state.z);
+    //peer.root.position = BABYLON.Vector3.Lerp(peer.root.position, target, 0.3);
+
+    const target = new BABYLON.Vector3(
+        state.x,
+        (state.y - CHAR.capsuleHeight / 2),
+        state.z
+    );
     peer.root.position = BABYLON.Vector3.Lerp(peer.root.position, target, 0.3);
 
     // Поворот
     peer.root.rotation.y = state.yaw;
+    
 
     // Двигаем тег имени
     if (peer.nameTag) {
@@ -149,3 +164,35 @@ export class MultiplayerManager {
     this._client = null;
   }
 }
+
+
+
+// try {
+    //   console.log("123");
+    //   this._room = await this._client.joinOrCreate('global_room', {/* */});
+      
+    //   console.log(`[MP] _room`);
+      
+    //   this._myId = this._room.sessionId;
+      
+    //   //console.log(`[MP] connected as ${username} (${this._myId})`);
+
+    //   const $ = getStateCallbacks(this._room);  
+
+    //   // Новый игрок появился
+    //   $(this._room.state).players.onAdd((player, sessionId) => {
+    //     if (sessionId === this._myId) return;
+    //     console.log(`[MP] player joined: ${sessionId}`);
+    //     this._spawnPeer(sessionId, player, $);
+    //   });
+
+    //   // Игрок ушёл
+    //   $(this._room.state).players.onRemove((player, sessionId) => {
+    //     console.log(`[MP] player left: ${sessionId}`);
+    //     this._removePeer(sessionId);
+    //   });
+
+    // } catch (e) {
+    //     console.warn("[MP] connection failed:", e.message);
+    //     console.error("[MP] full error:", e);
+    // }
