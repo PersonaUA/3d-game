@@ -174,11 +174,28 @@ export class CrystalManager {
       if (Math.sqrt(dx * dx + dz * dz) < COLLECT_RADIUS) this._collect(crystal, now);
     }
 
+    // if (now - this._lastSaveAt > SAVE_INTERVAL) {
+    //   this._save(playerPos);
+    //   this._lastSaveAt = now;
+    // }
+
+    // Периодическое сохранение в БД
     if (now - this._lastSaveAt > SAVE_INTERVAL) {
-      this._save(playerPos);
-      this._lastSaveAt = now;
+      this._lastSaveAt = now; // обновляем сразу, не ждём ответа
+      this._save(playerPos);  // без await — не блокируем game loop
     }
+
   }
+
+  // _collect(crystal, now) {
+  //   crystal.collected = true;
+  //   crystal.respawnAt = now + RESPAWN_DELAY;
+  //   crystal.mesh.setEnabled(false);
+  //   this._totalCollected++;
+  //   this._updateHUD();
+  //   playCollectSound(); // 🔔
+  //   this._save();
+  // }
 
   _collect(crystal, now) {
     crystal.collected = true;
@@ -186,8 +203,8 @@ export class CrystalManager {
     crystal.mesh.setEnabled(false);
     this._totalCollected++;
     this._updateHUD();
-    playCollectSound(); // 🔔
-    this._save();
+    playCollectSound();
+    this._save(); // без await
   }
 
   _respawn(crystal) {
@@ -197,9 +214,19 @@ export class CrystalManager {
     crystal.mesh.position.set(crystal.pt.x, crystal.baseY, crystal.pt.z);
   }
 
-  async _save(playerPos) {
+  // async _save(playerPos) {
+  //   const pos = playerPos ?? BABYLON.Vector3.Zero();
+  //   await saveProgress({
+  //     crystals: this._totalCollected,
+  //     pos_x:    Math.round(pos.x * 100) / 100,
+  //     pos_y:    Math.round(pos.z * 100) / 100,
+  //   });
+  // }
+
+  _save(playerPos) {
     const pos = playerPos ?? BABYLON.Vector3.Zero();
-    await saveProgress({
+    // Запускаем и забываем — ошибки уже логируются внутри saveProgress
+    saveProgress({
       crystals: this._totalCollected,
       pos_x:    Math.round(pos.x * 100) / 100,
       pos_y:    Math.round(pos.z * 100) / 100,
