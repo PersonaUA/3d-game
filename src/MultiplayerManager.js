@@ -1,4 +1,6 @@
 import { CHAR } from './config.js';
+import { AnimationController } from './AnimationController.js';
+
 import { Client, Callbacks } from "@colyseus/sdk";
 
 const COLYSEUS_URL = "wss://3d-game-colyseus.fly.dev";
@@ -63,70 +65,132 @@ export class MultiplayerManager {
   }
 
   // Спавним меш другого игрока
-  async _spawnPeer(sessionId, playerState) {
+//   async _spawnPeer(sessionId, playerState) {
 
-    const result = await BABYLON.SceneLoader.ImportMeshAsync(
-      "", "assets/models/", "timmy5.glb", this._scene
-    );
+//     const result = await BABYLON.SceneLoader.ImportMeshAsync(
+//       "", "assets/models/", "timmy5.glb", this._scene
+//     );
 
-    const root = result.meshes[0];
-    root.name  = `peer_${sessionId}`;
+//     const root = result.meshes[0];
+//     root.name  = `peer_${sessionId}`;
 
-    // Обнуляем quaternion — иначе rotation.y не работает
-    root.rotationQuaternion = null;
+//     // Обнуляем quaternion — иначе rotation.y не работает
+//     root.rotationQuaternion = null;
 
 
-    root.position = new BABYLON.Vector3(
-        playerState.x,
-        (playerState.y - CHAR.capsuleHeight / 2), // как в #syncModelToCapsule
-        playerState.z
-    );
+//     root.position = new BABYLON.Vector3(
+//         playerState.x,
+//         (playerState.y - CHAR.capsuleHeight / 2), // как в #syncModelToCapsule
+//         playerState.z
+//     );
 
-    root.scaling = new BABYLON.Vector3(1, 1, 1);
+//     root.scaling = new BABYLON.Vector3(1, 1, 1);
 
-    // Цветовой оттенок чтобы отличать других игроков
-    result.meshes.forEach(m => {
-      if (m.material) {
-        m.material = m.material.clone(`peer_mat_${sessionId}`);
-        if (m.material.albedoColor) {
-          m.material.albedoColor = new BABYLON.Color3(0.6, 0.8, 1.0); // голубоватый
-        }
+//     // Цветовой оттенок чтобы отличать других игроков
+//     result.meshes.forEach(m => {
+//       if (m.material) {
+//         m.material = m.material.clone(`peer_mat_${sessionId}`);
+//         if (m.material.albedoColor) {
+//           m.material.albedoColor = new BABYLON.Color3(0.6, 0.8, 1.0); // голубоватый
+//         }
+//       }
+//     });
+
+//     // Тег с именем игрока
+//     const nameTag = this._createNameTag(playerState.username || sessionId.substring(0, 6));
+//     this._peers.set(sessionId, { root, nameTag, animGroups: result.animationGroups });    
+//   }
+
+async _spawnPeer(sessionId, playerState) {
+  const result = await BABYLON.SceneLoader.ImportMeshAsync(
+    "", "assets/models/", "timmy5.glb", this._scene
+  );
+
+  const root = result.meshes[0];
+  root.name  = `peer_${sessionId}`;
+  root.rotationQuaternion = null;
+  root.position = new BABYLON.Vector3(
+    playerState.x,
+    (playerState.y - CHAR.capsuleHeight / 2),
+    playerState.z
+  );
+  root.scaling = new BABYLON.Vector3(1, 1, 1);
+
+  result.meshes.forEach(m => {
+    if (m.material) {
+      m.material = m.material.clone(`peer_mat_${sessionId}`);
+      if (m.material.albedoColor) {
+        m.material.albedoColor = new BABYLON.Color3(0.6, 0.8, 1.0);
       }
-    });
+    }
+  });
 
-    // Тег с именем игрока
-    const nameTag = this._createNameTag(playerState.username || sessionId.substring(0, 6));
-    this._peers.set(sessionId, { root, nameTag, animGroups: result.animationGroups });    
-  }
+  const nameTag = this._createNameTag(playerState.username || sessionId.substring(0, 6));
 
-  _updatePeer(sessionId, state) {
-    const peer = this._peers.get(sessionId);
-    if (!peer) return;
+  // Загружаем анимации для этого пира
+  const skeleton = result.skeletons?.[0] ?? null;
+  const animCtrl = new AnimationController();
+  if (skeleton) await animCtrl.load(this._scene, skeleton, root);
 
-    // Плавное движение через lerp
-    //const target = new BABYLON.Vector3(state.x, state.y, state.z);
-    //peer.root.position = BABYLON.Vector3.Lerp(peer.root.position, target, 0.3);
+  this._peers.set(sessionId, { root, nameTag, animCtrl });
+}
 
-    const target = new BABYLON.Vector3(
-        state.x,
-        (state.y - CHAR.capsuleHeight / 2),
-        state.z
-    );
-    peer.root.position = BABYLON.Vector3.Lerp(peer.root.position, target, 0.3);
+//   _updatePeer(sessionId, state) {
+//     const peer = this._peers.get(sessionId);
+//     if (!peer) return;
 
-    // Поворот
-    peer.root.rotation.y = state.yaw;
+//     // Плавное движение через lerp
+//     //const target = new BABYLON.Vector3(state.x, state.y, state.z);
+//     //peer.root.position = BABYLON.Vector3.Lerp(peer.root.position, target, 0.3);
+
+//     const target = new BABYLON.Vector3(
+//         state.x,
+//         (state.y - CHAR.capsuleHeight / 2),
+//         state.z
+//     );
+//     peer.root.position = BABYLON.Vector3.Lerp(peer.root.position, target, 0.3);
+
+//     // Поворот
+//     peer.root.rotation.y = state.yaw;
     
 
-    // Двигаем тег имени
-    if (peer.nameTag) {
-      peer.nameTag.position = new BABYLON.Vector3(
-        peer.root.position.x,
-        peer.root.position.y + 2.2,
-        peer.root.position.z
-      );
+//     // Двигаем тег имени
+//     if (peer.nameTag) {
+//       peer.nameTag.position = new BABYLON.Vector3(
+//         peer.root.position.x,
+//         peer.root.position.y + 2.2,
+//         peer.root.position.z
+//       );
+//     }
+//   }
+_updatePeer(sessionId, state) {
+  const peer = this._peers.get(sessionId);
+  if (!peer) return;
+
+  const target = new BABYLON.Vector3(
+    state.x,
+    (state.y - CHAR.capsuleHeight / 2),
+    state.z
+  );
+  peer.root.position = BABYLON.Vector3.Lerp(peer.root.position, target, 0.3);
+  peer.root.rotation.y = state.yaw;
+
+  // Переключаем анимацию
+  if (peer.animCtrl) {
+    const animKey = state.animation ?? 'idle';
+    if (peer.animCtrl.currentKey !== animKey) {
+      peer.animCtrl.play(animKey);
     }
   }
+
+  if (peer.nameTag) {
+    peer.nameTag.position = new BABYLON.Vector3(
+      peer.root.position.x,
+      peer.root.position.y + 2.2,
+      peer.root.position.z
+    );
+  }
+}
 
   _removePeer(sessionId) {
     const peer = this._peers.get(sessionId);

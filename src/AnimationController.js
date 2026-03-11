@@ -9,11 +9,10 @@ import { ASSETS, ANIM } from './config.js';
  * @param {string}           url       — путь к файлу анимации
  * @param {string}           name      — имя для AnimationGroup
  */
-async function loadAnimationGroup(scene, skeleton, url, name) {
+async function loadAnimationGroup(scene, skeleton, url, name, rootMesh) {
   const container = await BABYLON.SceneLoader.LoadAssetContainerAsync('', url, scene);
 
   if (!container.animationGroups.length) {
-    console.warn(`[AnimationController] No animation groups found in ${url}`);
     container.dispose();
     return null;
   }
@@ -21,31 +20,29 @@ async function loadAnimationGroup(scene, skeleton, url, name) {
   const srcGroup = container.animationGroups[0];
   const group = new BABYLON.AnimationGroup(name, scene);
 
-  // Строим карту имя → TransformNode/Bone из основной сцены
-  // BabylonJS хранит кости как TransformNode-ы, ищем через getTransformNodeByName
+  // Строим карту имя → нода только среди дочерних мешей rootMesh
+  const nodeMap = new Map();
+  if (rootMesh) {
+    const descendants = rootMesh.getDescendants(false);
+    descendants.forEach(n => nodeMap.set(n.name, n));
+  }
+
   srcGroup.targetedAnimations.forEach(ta => {
     const boneName = ta.target?.name;
     if (!boneName) return;
 
-    // Сначала ищем TransformNode (так хранятся кости скелета в сцене)
-    let target = scene.getTransformNodeByName(boneName);
+    let target = nodeMap.get(boneName);
 
-    // Запасной вариант — поиск по skeleton.bones
     if (!target) {
       const bone = skeleton.bones.find(b => b.name === boneName);
       target = bone?._linkedTransformNode ?? bone;
     }
 
-    if (!target) {
-      // console.warn(`[AnimationController] Target not found: "${boneName}"`);
-      return;
-    }
-
+    if (!target) return;
     group.addTargetedAnimation(ta.animation, target);
   });
 
   group.loopAnimation = true;
-
   container.dispose();
   return group;
 }
@@ -61,18 +58,15 @@ export class AnimationController {
    * @param {BABYLON.Scene}    scene
    * @param {BABYLON.Skeleton} skeleton
    */
-  async load(scene, skeleton) {
+  async load(scene, skeleton, rootMesh = null) {
     const entries = Object.entries(ASSETS.animations);
     for (const [key, url] of entries) {
       try {
-        this.anims[key] = await loadAnimationGroup(scene, skeleton, url, key);
-        //console.log(`[AnimationController] ✓ ${key} loaded`);
+        this.anims[key] = await loadAnimationGroup(scene, skeleton, url, key, rootMesh);
       } catch (err) {
-        console.error(`[AnimationController] ✗ Failed to load "${key}" from ${url}:`, err);
+        console.error(`[AnimationController] ✗ Failed to load "${key}":`, err);
       }
     }
-
-    // Запускаем idle по умолчанию
     this.play('idle');
   }
 
