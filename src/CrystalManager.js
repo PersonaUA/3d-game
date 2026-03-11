@@ -93,13 +93,7 @@ export class CrystalManager {
     mesh.position = new BABYLON.Vector3(pt.x, baseY, pt.z);
     mesh.checkCollisions = false;
 
-    // Свечение вокруг кристалла
-    const glow = new BABYLON.PointLight(`crystalGlow_${idx}`, mesh.position.clone(), this._scene);
-    glow.diffuse   = new BABYLON.Color3(0.7, 0.3, 1.0);
-    glow.intensity = 0.8;
-    glow.range     = 3.0;
-
-    this._crystals.push({ mesh, glow, baseY, pt, idx, collected: false, respawnAt: 0, time: 0 });
+    this._crystals.push({ mesh, baseY, pt, idx, collected: false, respawnAt: 0, time: 0 });
   }
 
   /**
@@ -123,7 +117,6 @@ export class CrystalManager {
 
       // Левитация и вращение
       crystal.mesh.position.y = crystal.baseY + Math.sin(crystal.time * FLOAT_SPEED) * FLOAT_AMP;
-      crystal.glow.position.copyFrom(crystal.mesh.position);
       crystal.mesh.rotation.y += ROTATE_SPEED * dt;
 
       // Проверка сбора
@@ -148,7 +141,6 @@ export class CrystalManager {
     crystal.collected  = true;
     crystal.respawnAt  = now + RESPAWN_DELAY;
     crystal.mesh.setEnabled(false);
-    crystal.glow.setEnabled(false);
 
     this._totalCollected++;
     this._updateHUD();
@@ -162,7 +154,6 @@ export class CrystalManager {
     crystal.collected = false;
     crystal.time      = 0;
     crystal.mesh.setEnabled(true);
-    crystal.glow.setEnabled(true);
     crystal.mesh.position.set(crystal.pt.x, crystal.baseY, crystal.pt.z);
   }
 
@@ -185,7 +176,6 @@ export class CrystalManager {
   dispose() {
     this._crystals.forEach(c => {
       c.mesh.dispose();
-      c.glow.dispose();
     });
     this._crystals = [];
     if (this._templateMesh) {
