@@ -67,15 +67,19 @@ export class CrystalManager {
     let mesh;
 
     if (this._templateMesh) {
+
+      console.log('[crystal] templateMesh:', this._templateMesh.name);
+      console.log('[crystal] all meshes in scene with crystal:', 
+        this._scene.meshes.filter(m => m.name.includes('crystal') || m.name.includes('diamond')).map(m => m.name)
+      );
+      console.log('[crystal] getChildMeshes:', this._templateMesh.getChildMeshes().map(m => m.name));
+      console.log('[crystal] getChildMeshes(true):', this._templateMesh.getChildMeshes(true).map(m => m.name));
+
+
       // Клонируем дочерний меш напрямую — __root__ пустой, геометрия в child
       const child = this._templateMesh.getChildMeshes()[0];
 
-      console.log('[crystal] child name:', child?.name);
-      console.log('[crystal] child isVisible:', child?.isVisible);
-      console.log('[crystal] child isEnabled:', child?.isEnabled());
-      console.log('[crystal] child scaling:', child?.scaling.toString());
-      console.log('[crystal] child position:', child?.position.toString());
-      console.log('[crystal] child getBoundingInfo:', child?.getBoundingInfo().boundingBox.extendSize.toString());
+     
 
       if (child) {
         mesh = child.clone(`crystal_${idx}`);
