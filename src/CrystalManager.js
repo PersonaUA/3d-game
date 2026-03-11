@@ -67,26 +67,19 @@ export class CrystalManager {
     let mesh;
 
     if (this._templateMesh) {
+      // Клонируем дочерний меш напрямую — __root__ пустой, геометрия в child
+      const child = this._templateMesh.getChildMeshes()[0];
+      if (child) {
+        mesh = child.clone(`crystal_${idx}`);
+        mesh.parent = null;
+        mesh.setEnabled(true);
+        mesh.isVisible = true;
+        // Подбери scaling под размер своей модели
+        mesh.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3);
+      }
+    }
 
-      console.log('[crystal] template mesh name:', this._templateMesh.name);
-      console.log('[crystal] template children:', this._templateMesh.getChildMeshes().length);
-      
-      mesh = this._templateMesh.clone(`crystal_${idx}`);
-      mesh.setEnabled(true);
-      mesh.isVisible = true;
-
-      console.log('[crystal] cloned mesh position:', pt.x, baseY, pt.z);
-      console.log('[crystal] cloned mesh scaling:', mesh.scaling.toString());
-
-
-      // Клонируем дочерние меши тоже
-      this._templateMesh.getChildMeshes().forEach((child, ci) => {
-        const childClone = child.clone(`crystal_${idx}_child_${ci}`);
-        childClone.parent = mesh;
-        childClone.isVisible = true;
-      });
-      mesh.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
-    } else {
+    if (!mesh) {
       // Фоллбэк — сиреневый октаэдр
       mesh = BABYLON.MeshBuilder.CreatePolyhedron(`crystal_${idx}`, {
         type: 1, size: 0.35,
