@@ -34,7 +34,7 @@ function playCollectSound() {
     const noise     = ctx.createBufferSource();
     noise.buffer    = buffer;
     const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.06, now);
+    noiseGain.gain.setValueAtTime(0.12, now);
     noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
 
     // Полосовой фильтр — оставляем только высокие частоты стекла
@@ -52,8 +52,9 @@ function playCollectSound() {
     const oscGain  = ctx.createGain();
     osc.type       = 'sine';
     osc.frequency.setValueAtTime(2200, now);
+
     osc.frequency.exponentialRampToValueAtTime(1800, now + 0.25);
-    oscGain.gain.setValueAtTime(0.04, now);
+    oscGain.gain.setValueAtTime(0.08, now);
     oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
     osc.connect(oscGain);
     oscGain.connect(ctx.destination);
@@ -61,9 +62,9 @@ function playCollectSound() {
     noise.start(now);
     noise.stop(now + 0.05);
     osc.start(now);
-    osc.stop(now + 0.25);
+    osc.stop(now + 0.12);
 
-    setTimeout(() => ctx.close(), 400);
+    setTimeout(() => ctx.close(), 250);
   } catch (e) {}
 }
 
