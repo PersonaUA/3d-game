@@ -5,7 +5,7 @@ const elFps    = document.getElementById('fps-display');
 
 const toDeg = r => (r * 180 / Math.PI).toFixed(1) + '°';
 
-export function updateHUD({ state, speed, position, yaw, camYaw }, engine) {
+export function updateHUD({ state, speed, position }, engine) {
   elState.textContent  = state.toUpperCase();
   elState.className    = state;
   elPos.textContent    = `${position.x.toFixed(2)}, ${position.z.toFixed(2)}`;
