@@ -34,7 +34,7 @@ function playCollectSound() {
     const noise     = ctx.createBufferSource();
     noise.buffer    = buffer;
     const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.10, now);
+    noiseGain.gain.setValueAtTime(0.06, now);
     noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
 
     // Полосовой фильтр — оставляем только высокие частоты стекла
@@ -54,7 +54,7 @@ function playCollectSound() {
     osc.frequency.setValueAtTime(2200, now);
 
     osc.frequency.exponentialRampToValueAtTime(1800, now + 0.25);
-    oscGain.gain.setValueAtTime(0.08, now);
+    oscGain.gain.setValueAtTime(0.05, now);
     oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
     osc.connect(oscGain);
     oscGain.connect(ctx.destination);
