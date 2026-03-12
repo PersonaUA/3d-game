@@ -89,8 +89,9 @@ async _spawnPeer(sessionId, playerState, username) {
       }
     }
   });
-
-  const nameTag = this._createNameTag(username || sessionId.substring(0, 6));
+  
+  console.log(`player name = ${username}`);
+  const nameTag = this._createNameTag( username); // || sessionId.substring(0, 6));
 
   // Загружаем анимации для этого пира
   const skeleton = result.skeletons?.[0] ?? null;
