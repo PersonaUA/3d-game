@@ -32,7 +32,7 @@ export class MultiplayerManager {
 
         if (sessionId === this._myId) return;
         console.log(`[MP] player joined: ${sessionId}`);
-        this._spawnPeer(sessionId, player, username);
+        this._spawnPeer(sessionId, player);
 
         callbacks.onChange(player, () => {
             this._updatePeer(sessionId, player);
@@ -66,7 +66,7 @@ export class MultiplayerManager {
 
  
 
-async _spawnPeer(sessionId, playerState, username) {
+async _spawnPeer(sessionId, playerState) {
   const result = await BABYLON.SceneLoader.ImportMeshAsync(
     "", "assets/models/", "timmy5.glb", this._scene
   );
@@ -90,8 +90,8 @@ async _spawnPeer(sessionId, playerState, username) {
     }
   });
   
-  console.log(`player name = ${username}`);
-  const nameTag = this._createNameTag( username); // || sessionId.substring(0, 6));
+  console.log(`player name = ${playerState.username}`);
+  const nameTag = this._createNameTag(playerState.username || sessionId.substring(0, 6));
 
   // Загружаем анимации для этого пира
   const skeleton = result.skeletons?.[0] ?? null;
