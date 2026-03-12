@@ -169,11 +169,11 @@ export class Scene3 extends SceneBase {
 
       // Свет только для первых 4
       let light = null;
-      if (i < 4) {
+      if (i < 2) {
         light = new BABYLON.PointLight(`orbLight_${i}`, orb.position.clone(), this.scene);
         light.diffuse   = color;
         light.specular  = color;
-        light.intensity = 1.2;
+        light.intensity = 2.4;
         light.range     = 8;
         this._lights.push(light);
       }
