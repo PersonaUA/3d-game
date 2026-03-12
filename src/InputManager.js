@@ -44,7 +44,7 @@ export class InputManager {
       left:   kb.left   || joy.left,
       right:  kb.right  || joy.right,
       sprint: kb.sprint || joy.sprint,
-      jump:   kb.jump,
+      jump:   kb.jump   || this.joystick.jumpPressed,
     };
   }
 

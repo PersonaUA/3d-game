@@ -159,65 +159,130 @@ _updatePeer(sessionId, state) {
 //     return plane;
 //   }
 
-  _createNameTag(username) {
-    const W = 256, H = 48;
-    const plane = BABYLON.MeshBuilder.CreatePlane(
-        `tag_${username}`, { width: 1.2, height: 0.22 }, this._scene
-    );
+//   _createNameTag(username) {
+//     const W = 256, H = 48;
+//     const plane = BABYLON.MeshBuilder.CreatePlane(
+//         `tag_${username}`, { width: 1.2, height: 0.22 }, this._scene
+//     );
 
-    const tex = new BABYLON.DynamicTexture(
-        `tex_${username}`, { width: W, height: H }, this._scene
-    );
+//     const tex = new BABYLON.DynamicTexture(
+//         `tex_${username}`, { width: W, height: H }, this._scene
+//     );
 
-    const ctx = tex.getContext();
+//     const ctx = tex.getContext();
 
-    // Фон — тёмный с лёгкой прозрачностью
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = "rgba(10, 12, 20, 0.6)";
+//     // Фон — тёмный с лёгкой прозрачностью
+//     ctx.clearRect(0, 0, W, H);
+//     ctx.fillStyle = "rgba(10, 12, 20, 0.6)";
    
-    const r = 6; // радиус скругления
-    ctx.beginPath();
-    ctx.moveTo(r, 0);
-    ctx.lineTo(W - r, 0);
-    ctx.quadraticCurveTo(W, 0, W, r);
-    ctx.lineTo(W, H - r);
-    ctx.quadraticCurveTo(W, H, W - r, H);
-    ctx.lineTo(r, H);
-    ctx.quadraticCurveTo(0, H, 0, H - r);
-    ctx.lineTo(0, r);
-    ctx.quadraticCurveTo(0, 0, r, 0);
-    ctx.closePath();
-    ctx.fill();
+//     const r = 6; // радиус скругления
+//     ctx.beginPath();
+//     ctx.moveTo(r, 0);
+//     ctx.lineTo(W - r, 0);
+//     ctx.quadraticCurveTo(W, 0, W, r);
+//     ctx.lineTo(W, H - r);
+//     ctx.quadraticCurveTo(W, H, W - r, H);
+//     ctx.lineTo(r, H);
+//     ctx.quadraticCurveTo(0, H, 0, H - r);
+//     ctx.lineTo(0, r);
+//     ctx.quadraticCurveTo(0, 0, r, 0);
+//     ctx.closePath();
+//     ctx.fill();
 
-    // Рамка
-    // ctx.strokeStyle = "rgba(0, 255, 204, 0.35)";
-    // ctx.lineWidth = 1.25;
-    // ctx.stroke();
+//     // Рамка
+//     // ctx.strokeStyle = "rgba(0, 255, 204, 0.35)";
+//     // ctx.lineWidth = 1.25;
+//     // ctx.stroke();
 
-    // Текст
-    ctx.font = "500 36px 'Courier New'";
-    ctx.fillStyle = "#00ffcc";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(0, 255, 204, 1.0)";
-    ctx.shadowBlur = 3;
-    ctx.fillText(username, W / 2, H / 2);
+//     // Текст
+//     ctx.font = "500 36px 'Courier New'";
+//     ctx.fillStyle = "#00ffcc";
+//     ctx.textAlign = "center";
+//     ctx.textBaseline = "middle";
+//     ctx.shadowColor = "rgba(0, 255, 204, 1.0)";
+//     ctx.shadowBlur = 3;
+//     ctx.fillText(username, W / 2, H / 2);
 
-    tex.update();
+//     tex.update();
 
-    const mat           = new BABYLON.StandardMaterial(`tagMat_${username}`, this._scene);
-    mat.diffuseTexture  = tex;
-    mat.emissiveColor   = new BABYLON.Color3(1, 1, 1);
-    mat.backFaceCulling = false;
-    mat.disableLighting = true;
-    mat.useAlphaFromDiffuseTexture = true;
-    tex.hasAlpha = true;
+//     const mat           = new BABYLON.StandardMaterial(`tagMat_${username}`, this._scene);
+//     mat.diffuseTexture  = tex;
+//     mat.emissiveColor   = new BABYLON.Color3(1, 1, 1);
+//     mat.backFaceCulling = false;
+//     mat.disableLighting = true;
+//     mat.useAlphaFromDiffuseTexture = true;
+//     tex.hasAlpha = true;
 
-    plane.material      = mat;
-    plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+//     plane.material      = mat;
+//     plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
 
-    return plane;
-    }
+//     return plane;
+//     }
+
+  _createNameTag(username) {
+  const H = 48;
+  const FONT = "500 36px 'Courier New'";
+  const PADDING = 24; // отступ по бокам
+
+  // Измеряем ширину текста через временный canvas
+  const tmpCanvas = document.createElement('canvas');
+  const tmpCtx = tmpCanvas.getContext('2d');
+  tmpCtx.font = FONT;
+  const textWidth = tmpCtx.measureText(username).width;
+  const W = Math.ceil(textWidth + PADDING * 2);
+
+  // Размер плоскости пропорционален ширине текстуры
+  const planeWidth = (W / 256) * 1.2;
+
+  const plane = BABYLON.MeshBuilder.CreatePlane(
+    `tag_${username}`, { width: planeWidth, height: 0.22 }, this._scene
+  );
+
+  const tex = new BABYLON.DynamicTexture(
+    `tex_${username}`, { width: W, height: H }, this._scene
+  );
+
+  const ctx = tex.getContext();
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = "rgba(10, 12, 20, 0.6)";
+  const r = 6;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(W - r, 0);
+  ctx.quadraticCurveTo(W, 0, W, r);
+  ctx.lineTo(W, H - r);
+  ctx.quadraticCurveTo(W, H, W - r, H);
+  ctx.lineTo(r, H);
+  ctx.quadraticCurveTo(0, H, 0, H - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.font = FONT;
+  ctx.fillStyle = "#00ffcc";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.shadowColor = "rgba(0, 255, 204, 1.0)";
+  ctx.shadowBlur = 3;
+  ctx.fillText(username, W / 2, H / 2);
+
+  tex.update();
+
+  const mat = new BABYLON.StandardMaterial(`tagMat_${username}`, this._scene);
+  mat.diffuseTexture = tex;
+  mat.emissiveColor = new BABYLON.Color3(1, 1, 1);
+  mat.backFaceCulling = false;
+  mat.disableLighting = true;
+  mat.useAlphaFromDiffuseTexture = true;
+  tex.hasAlpha = true;
+
+  plane.material = mat;
+  plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+
+  return plane;
+}
 
   dispose() {
     this._peers.forEach((_, id) => this._removePeer(id));

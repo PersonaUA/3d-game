@@ -17,6 +17,9 @@ export class JoystickManager {
   #right = null;   // данные правого касания
   #isMobile = false;
 
+  jumpPressed = false;
+  #jumpBtn = null;
+
   // DOM-элементы
   #leftEl   = null;
   #leftKnob = null;
@@ -83,6 +86,24 @@ export class JoystickManager {
         pointer-events: all;
         z-index: 20;
       `;
+
+      jumpBtn.textContent = 'JUMP';
+      document.body.appendChild(jumpBtn);
+      this.#jumpBtn = jumpBtn;
+
+      jumpBtn.addEventListener('touchstart', e => {
+        e.preventDefault();
+        this.jumpPressed = true;
+        jumpBtn.style.background = 'rgba(0, 255, 204, 0.25)';
+        jumpBtn.style.borderColor = 'rgba(0, 255, 204, 0.8)';
+      }, { passive: false });
+
+      jumpBtn.addEventListener('touchend', e => {
+        e.preventDefault();
+        this.jumpPressed = false;
+        jumpBtn.style.background = 'rgba(0, 255, 204, 0.1)';
+        jumpBtn.style.borderColor = 'rgba(0, 255, 204, 0.4)';
+      }, { passive: false });
 
       const knob = document.createElement('div');
       knob.className = 'joystick-knob';
