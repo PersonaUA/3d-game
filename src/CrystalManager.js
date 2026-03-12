@@ -95,40 +95,27 @@ export class CrystalManager {
     await Promise.all(this._spawnPoints.map((pt, i) => this._spawnCrystal(pt, i)));
     console.log(`[CrystalManager] ${this._crystals.length} crystals ready`);
   }
+  
 
   // hideRemote(index) {
-    
-  //   console.log(`[crystal] hideRemote index=${index}, crystals count=${this._crystals.length}`);
-    
-  //   const crystal = this._crystals[index];
-    
-  //   console.log(`[crystal] found:`, crystal);
-
-  //   if (!crystal || crystal.collected) return;
-  //   crystal.collected = true;
-  //   crystal.mesh.setEnabled(false);
-  // }
-
-  // hideRemote(index) {
-  //   // было: const crystal = this._crystals[index];
   //   const crystal = this._crystals.find(c => c.index === index);
+  //   console.log(`[crystal] hideRemote index=${index}, found:`, crystal);
+  //   console.log(`[crystal] mesh enabled:`, crystal?.mesh?.isEnabled());
+    
   //   if (!crystal || crystal.collected) return;
   //   crystal.collected = true;
   //   crystal.mesh.setEnabled(false);
+    
+  //   console.log(`[crystal] after hide, enabled:`, crystal.mesh.isEnabled());
   // }
 
   hideRemote(index) {
     const crystal = this._crystals.find(c => c.index === index);
-    console.log(`[crystal] hideRemote index=${index}, found:`, crystal);
-    console.log(`[crystal] mesh enabled:`, crystal?.mesh?.isEnabled());
-    
     if (!crystal || crystal.collected) return;
     crystal.collected = true;
+    crystal.respawnAt = Infinity; // никогда не респавнится
     crystal.mesh.setEnabled(false);
-    
-    console.log(`[crystal] after hide, enabled:`, crystal.mesh.isEnabled());
   }
-
 
   async _spawnCrystal(pt, idx) {
     const baseY = pt.y ?? 1.0;
@@ -173,7 +160,7 @@ export class CrystalManager {
       });
 
       console.log(`[crystal ${idx}] ok | pos: ${pt.x},${baseY},${pt.z}`);
-      this._crystals.push({ mesh: root, baseY, pt, index: idx, collected: false, respawnAt: 0, time: 0 });
+      this._crystals.push({ mesh: root, baseY, pt, index: idx, collected: false, respawnAt: Infinity, time: 0 });
 
     } catch (err) {
       console.warn(`[crystal ${idx}] load failed:`, err.message, '— using fallback');
