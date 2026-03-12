@@ -54,6 +54,9 @@ export class MultiplayerManager {
     const callbacks = Callbacks.get(this._room);
 
     callbacks.onAdd("crystals", (crystal, key) => {
+
+      console.log(`[MP] crystal onAdd key=${key} collected=${crystal.collected}`);
+
       callbacks.onChange(crystal, () => {
         if (crystal.collected) callback(Number(key));
       });
