@@ -124,7 +124,7 @@ _updatePeer(sessionId, state) {
   if (peer.nameTag) {
     peer.nameTag.position = new BABYLON.Vector3(
       peer.root.position.x,
-      peer.root.position.y + 2.2,
+      peer.root.position.y + 1.6,
       peer.root.position.z
     );
   }
@@ -195,12 +195,12 @@ _updatePeer(sessionId, state) {
     // ctx.stroke();
 
     // Текст
-    ctx.font = "500 24px 'Courier New'";
+    ctx.font = "500 48px 'Courier New'";
     ctx.fillStyle = "#00ffcc";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.shadowColor = "rgba(0, 255, 204, 0.6)";
-    ctx.shadowBlur = 6;
+    ctx.shadowColor = "rgba(0, 255, 204, 1.0)";
+    ctx.shadowBlur = 3;
     ctx.fillText(username.toUpperCase(), W / 2, H / 2);
 
     tex.update();
