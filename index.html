@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Character Controller</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script type="module" crossorigin src="/3d-game/assets/index-C1Ovr8jM.js"></script>
+  <script type="module" crossorigin src="/3d-game/assets/index-C9wvk3PN.js"></script>
   <link rel="stylesheet" crossorigin href="/3d-game/assets/index-CrjpsYcR.css">
 </head>
 <body>
@@ -98,6 +98,16 @@
         <span class="tune-label">STRAFE ANIM ×</span>
         <input type="range" id="tune-strafeAnim" min="0.2" max="3.0" step="0.05" value="1.0">
         <span class="tune-val" id="tune-strafeAnim-val">1.00</span>
+      </div>
+      <div class="tune-row">
+        <span class="tune-label">BACK SPEED</span>
+        <input type="range" id="tune-walkBackSpeed" min="0.01" max="0.15" step="0.001" value="0.035">
+        <span class="tune-val" id="tune-walkBackSpeed-val">0.035</span>
+      </div>
+      <div class="tune-row">
+        <span class="tune-label">BACK ANIM ×</span>
+        <input type="range" id="tune-walkBackAnim" min="0.2" max="3.0" step="0.05" value="1.8">
+        <span class="tune-val" id="tune-walkBackAnim-val">1.80</span>
       </div>
       <div class="tune-hint">Copy final values to config.js → CHAR / ANIM</div>
     </div>
