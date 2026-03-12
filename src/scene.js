@@ -50,10 +50,19 @@ export function createLights(scene) {
   return { hemi, sun, shadowGen };
 }
 
-export function applySceneSettings(scene, settings) {
+export function applySceneSettings(scene, settings, hemi, sun) {
+
   scene.clearColor = settings.clearColor;
   scene.fogColor   = settings.fogColor;
   scene.fogDensity = settings.fogDensity;
+  // Применяем настройки освещения из сцены
+  hemi.intensity   = settings.hemiIntensity;
+  hemi.diffuse     = settings.hemiDiffuse;
+  hemi.groundColor = settings.hemiGround;
+  sun.intensity    = settings.sunIntensity;
+  sun.diffuse      = settings.sunDiffuse;
+  sun.specular     = settings.sunDiffuse;
+  sun.direction    = settings.sunDirection;
 }
 
 export function createPostProcessing(scene, camera) {

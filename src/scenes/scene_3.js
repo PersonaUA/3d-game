@@ -10,6 +10,13 @@ const C = BABYLON.Color3;
 const C4 = BABYLON.Color4;
 
 const CFG = {
+
+    // Тёмная атмосфера — слабый hemi, нет sun
+    hemiIntensity: 3.0,
+    hemiDiffuse:   new BABYLON.Color3(0.8, 0.88, 1.0),
+    hemiGround:    new BABYLON.Color3(0.3, 0.25, 0.45),
+    sunIntensity:  3.5,
+
   clearColor: new C4(0.03, 0.04, 0.10, 1),
   fogColor:   new C(0.03, 0.04, 0.10),
   fogDensity: 0.018,
@@ -74,6 +81,12 @@ export class Scene3 extends SceneBase {
   get fogDensity() { return CFG.fogDensity; }
   get spawnPoint() { return CFG.spawnPoint; }
 
+  // Тёмная атмосфера — слабый hemi, нет sun
+  get hemiIntensity() { return CFG.hemiIntensity; }
+  get hemiDiffuse()   { return CFG.hemiDiffuse; }
+  get hemiGround()    { return CFG.hemiGround; }
+  get sunIntensity()  { return CFG.sunIntensity; }
+
   // Для анимации плавающих огней
   _floatingLights = [];
   _time = 0;
@@ -81,7 +94,7 @@ export class Scene3 extends SceneBase {
   build() {
     this._buildGround(CFG.ground);
     CFG.platforms.forEach((p, i) => this._buildPlatform(p, p.diff, p.edge, i));
-    CFG.crystalTowers.forEach(([x, z, h, color]) => this._buildCrystalTower(x, z, h, color));
+  //  CFG.crystalTowers.forEach(([x, z, h, color]) => this._buildCrystalTower(x, z, h, color));
     this._buildFloatingLights();
   }
 

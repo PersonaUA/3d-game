@@ -20,7 +20,7 @@ async function main() {
   const camera = createCamera(scene);
 
   setProgress(30, 'Setting up lights...');
-  const { shadowGen } = createLights(scene);
+  const { hemi, sun, shadowGen } = createLights(scene);
 
   // ── Загрузка данных игрока из БД ─────────────────────────────────────────
   setProgress(15, 'Loading player data...');
@@ -51,7 +51,9 @@ async function main() {
     if (!SceneClass) return;
     currentSceneInst  = new SceneClass(scene, shadowGen);
     currentSceneInst.build();
-    applySceneSettings(scene, currentSceneInst);
+
+    //applySceneSettings(scene, currentSceneInst);
+    applySceneSettings(scene, currentSceneInst, hemi, sun);
 
     // respawn только если персонаж уже загружен (не при первом вызове)
     if (character) character.respawn(currentSceneInst.spawnPoint);

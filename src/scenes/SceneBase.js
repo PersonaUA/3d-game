@@ -17,6 +17,16 @@ export class SceneBase {
   get fogDensity() { return 0.007; }
   get spawnPoint() { return new BABYLON.Vector3(0, 3, 0); }
 
+  // Освещение — переопредели в наследнике если нужно
+  get hemiIntensity()   { return 2.0; }
+  get hemiDiffuse()     { return new BABYLON.Color3(0.8, 0.88, 1.0); }
+  get hemiGround()      { return new BABYLON.Color3(0.3, 0.25, 0.45); }
+  get sunIntensity()    { return 1.0; }
+  get sunDiffuse()      { return new BABYLON.Color3(1.0, 0.95, 0.82); }
+  get sunDirection()    { return new BABYLON.Vector3(-1, -2.5, -1); }
+
+
+
   /** Строит всю сцену — вызывается один раз */
   build() { throw new Error(`${this.constructor.name}.build() not implemented`); }
 
