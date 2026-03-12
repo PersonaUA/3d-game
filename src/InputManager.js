@@ -24,6 +24,30 @@ export class InputManager {
     });
   }
 
+  // get state() {
+  //   const kb = {
+  //     fwd:    !!this.#keys['KeyW'],
+  //     back:   !!this.#keys['KeyS'],
+  //     left:   !!this.#keys['KeyA'],
+  //     right:  !!this.#keys['KeyD'],
+  //     sprint: !!(this.#keys['ShiftLeft'] || this.#keys['ShiftRight']),
+  //     jump:   !!this.#keys['Space'],
+  //   };
+
+  //   if (!this.joystick.isMobile) return kb;
+
+  //   // Мобиль — мержим клавиатуру и джойстик
+  //   const joy = this.joystick.moveState;
+  //   return {
+  //     fwd:    kb.fwd    || joy.fwd,
+  //     back:   kb.back   || joy.back,
+  //     left:   kb.left   || joy.left,
+  //     right:  kb.right  || joy.right,
+  //     sprint: kb.sprint || joy.sprint,
+  //     jump:   kb.jump   || this.joystick.jumpPressed,
+  //   };
+  // }
+
   get state() {
     const kb = {
       fwd:    !!this.#keys['KeyW'],
@@ -36,15 +60,19 @@ export class InputManager {
 
     if (!this.joystick.isMobile) return kb;
 
-    // Мобиль — мержим клавиатуру и джойстик
     const joy = this.joystick.moveState;
+    const jump = kb.jump || this.joystick.jumpPressed;
+    
+    // Сбрасываем jumpPressed после чтения — один прыжок на нажатие
+    this.joystick.jumpPressed = false;
+
     return {
       fwd:    kb.fwd    || joy.fwd,
       back:   kb.back   || joy.back,
       left:   kb.left   || joy.left,
       right:  kb.right  || joy.right,
       sprint: kb.sprint || joy.sprint,
-      jump:   kb.jump   || this.joystick.jumpPressed,
+      jump,
     };
   }
 

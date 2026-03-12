@@ -18,7 +18,7 @@ export class JoystickManager {
   #isMobile = false;
 
   jumpPressed = false;
-  jumpBtn = null;
+  #jumpBtn = null;
 
   // DOM-элементы
   #leftEl   = null;
@@ -87,24 +87,6 @@ export class JoystickManager {
         z-index: 20;
       `;
 
-      jumpBtn.textContent = 'JUMP';
-      document.body.appendChild(jumpBtn);
-      this.#jumpBtn = jumpBtn;
-
-      jumpBtn.addEventListener('touchstart', e => {
-        e.preventDefault();
-        this.jumpPressed = true;
-        jumpBtn.style.background = 'rgba(0, 255, 204, 0.25)';
-        jumpBtn.style.borderColor = 'rgba(0, 255, 204, 0.8)';
-      }, { passive: false });
-
-      jumpBtn.addEventListener('touchend', e => {
-        e.preventDefault();
-        this.jumpPressed = false;
-        jumpBtn.style.background = 'rgba(0, 255, 204, 0.1)';
-        jumpBtn.style.borderColor = 'rgba(0, 255, 204, 0.4)';
-      }, { passive: false });
-
       const knob = document.createElement('div');
       knob.className = 'joystick-knob';
       knob.style.cssText = `
@@ -130,6 +112,46 @@ export class JoystickManager {
     this.#leftKnob  = L.knob;
     this.#rightEl   = Ri.wrap;
     this.#rightKnob = Ri.knob;
+
+    // Кнопка прыжка
+      const jumpBtn = document.createElement('div');
+      jumpBtn.id = 'jump-btn';
+      jumpBtn.style.cssText = `
+        position:fixed; bottom:28px;
+        left:50%; transform:translateX(-50%);
+        width:56px; height:56px;
+        border-radius:50%;
+        border: 2px solid rgba(0, 255, 204, 0.4);
+        background: rgba(0, 255, 204, 0.1);
+        display:flex; align-items:center; justify-content:center;
+        color: rgba(0, 255, 204, 0.8);
+        font-family: 'Courier New', monospace;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+        pointer-events: all;
+        z-index: 20;
+      `;
+      jumpBtn.textContent = 'JUMP';
+      document.body.appendChild(jumpBtn);
+      this.#jumpBtn = jumpBtn;
+
+      jumpBtn.addEventListener('touchstart', e => {
+        e.preventDefault();
+        this.jumpPressed = true;
+        jumpBtn.style.background = 'rgba(0, 255, 204, 0.25)';
+        jumpBtn.style.borderColor = 'rgba(0, 255, 204, 0.8)';
+      }, { passive: false });
+
+      jumpBtn.addEventListener('touchend', e => {
+        e.preventDefault();
+        this.jumpPressed = false;
+        jumpBtn.style.background = 'rgba(0, 255, 204, 0.1)';
+        jumpBtn.style.borderColor = 'rgba(0, 255, 204, 0.4)';
+      }, { passive: false });
   }
 
   // ── Touch events ──────────────────────────────────────────────────────────
