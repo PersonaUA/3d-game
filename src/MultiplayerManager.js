@@ -138,26 +138,85 @@ _updatePeer(sessionId, state) {
     this._peers.delete(sessionId);
   }
 
+//   _createNameTag(username) {
+//     const plane = BABYLON.MeshBuilder.CreatePlane(
+//       `tag_${username}`, { width: 1.5, height: 0.4 }, this._scene
+//     );
+
+//     const tex = new BABYLON.DynamicTexture(
+//       `tex_${username}`, { width: 256, height: 64 }, this._scene
+//     );
+//     tex.drawText(username, null, 44, "bold 28px Courier New", "#00ffcc", "transparent");
+
+//     const mat        = new BABYLON.StandardMaterial(`tagMat_${username}`, this._scene);
+//     mat.diffuseTexture  = tex;
+//     mat.emissiveColor   = new BABYLON.Color3(0, 1, 0.8);
+//     mat.backFaceCulling = false;
+//     mat.disableLighting = true;
+//     plane.material      = mat;
+//     plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
+
+//     return plane;
+//   }
+
   _createNameTag(username) {
+    const W = 256, H = 48;
     const plane = BABYLON.MeshBuilder.CreatePlane(
-      `tag_${username}`, { width: 1.5, height: 0.4 }, this._scene
+        `tag_${username}`, { width: 1.2, height: 0.22 }, this._scene
     );
 
     const tex = new BABYLON.DynamicTexture(
-      `tex_${username}`, { width: 256, height: 64 }, this._scene
+        `tex_${username}`, { width: W, height: H }, this._scene
     );
-    tex.drawText(username, null, 44, "bold 28px Courier New", "#00ffcc", "transparent");
 
-    const mat        = new BABYLON.StandardMaterial(`tagMat_${username}`, this._scene);
+    const ctx = tex.getContext();
+
+    // Фон — тёмный с лёгкой прозрачностью
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(10, 12, 20, 0.75)";
+    const r = 6; // радиус скругления
+    ctx.beginPath();
+    ctx.moveTo(r, 0);
+    ctx.lineTo(W - r, 0);
+    ctx.quadraticCurveTo(W, 0, W, r);
+    ctx.lineTo(W, H - r);
+    ctx.quadraticCurveTo(W, H, W - r, H);
+    ctx.lineTo(r, H);
+    ctx.quadraticCurveTo(0, H, 0, H - r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    // Рамка
+    ctx.strokeStyle = "rgba(0, 255, 204, 0.35)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Текст
+    ctx.font = "500 18px 'Courier New'";
+    ctx.fillStyle = "#00ffcc";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(0, 255, 204, 0.6)";
+    ctx.shadowBlur = 6;
+    ctx.fillText(username.toUpperCase(), W / 2, H / 2);
+
+    tex.update();
+
+    const mat           = new BABYLON.StandardMaterial(`tagMat_${username}`, this._scene);
     mat.diffuseTexture  = tex;
-    mat.emissiveColor   = new BABYLON.Color3(0, 1, 0.8);
+    mat.emissiveColor   = new BABYLON.Color3(1, 1, 1);
     mat.backFaceCulling = false;
     mat.disableLighting = true;
+    mat.useAlphaFromDiffuseTexture = true;
+    tex.hasAlpha = true;
+
     plane.material      = mat;
     plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
 
     return plane;
-  }
+    }
 
   dispose() {
     this._peers.forEach((_, id) => this._removePeer(id));
