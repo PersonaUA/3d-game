@@ -109,13 +109,26 @@ export class CrystalManager {
   //   crystal.mesh.setEnabled(false);
   // }
 
+  // hideRemote(index) {
+  //   // было: const crystal = this._crystals[index];
+  //   const crystal = this._crystals.find(c => c.index === index);
+  //   if (!crystal || crystal.collected) return;
+  //   crystal.collected = true;
+  //   crystal.mesh.setEnabled(false);
+  // }
+
   hideRemote(index) {
-    // было: const crystal = this._crystals[index];
     const crystal = this._crystals.find(c => c.index === index);
+    console.log(`[crystal] hideRemote index=${index}, found:`, crystal);
+    console.log(`[crystal] mesh enabled:`, crystal?.mesh?.isEnabled());
+    
     if (!crystal || crystal.collected) return;
     crystal.collected = true;
     crystal.mesh.setEnabled(false);
+    
+    console.log(`[crystal] after hide, enabled:`, crystal.mesh.isEnabled());
   }
+
 
   async _spawnCrystal(pt, idx) {
     const baseY = pt.y ?? 1.0;
