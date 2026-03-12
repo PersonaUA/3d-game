@@ -1,6 +1,6 @@
-import { Scene1 } from './scene_3.js';
-import { Scene2 } from './scene_1.js';
-import { Scene3 } from './scene_2.js';
+import { Scene1 } from './scene_1.js';
+import { Scene2 } from './scene_2.js';
+import { Scene3 } from './scene_3.js';
 
 /**
  * Реестр сцен. Чтобы добавить новую:
@@ -8,9 +8,9 @@ import { Scene3 } from './scene_2.js';
  *   2. Импортируй и добавь в SCENES ниже
  */
 export const SCENES = {
-  1: Scene1,
-  2: Scene2,
-  3: Scene3,
+  1: Scene3,
+  2: Scene1,
+  3: Scene2,
 };
 
 export const DEFAULT_SCENE = 1;
