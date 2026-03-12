@@ -18,7 +18,7 @@ export class JoystickManager {
   #isMobile = false;
 
   jumpPressed = false;
-  #jumpBtn = null;
+  jumpBtn = null;
 
   // DOM-элементы
   #leftEl   = null;
