@@ -181,7 +181,7 @@ export class CrystalManager {
     // mesh.material     = mat;
     mesh.position     = new BABYLON.Vector3(pt.x, baseY, pt.z);
     mesh.checkCollisions = false;
-    this._crystals.push({ mesh, baseY, pt, index: idx, collected: false, respawnAt: 0, time: 0 });
+    this._crystals.push({ mesh, baseY, pt, index: idx, collected: false, respawnAt: Infinity, time: 0 });
   }
 
   update(playerPos, dt) {
