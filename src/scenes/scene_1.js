@@ -59,14 +59,28 @@ const CFG = {
       diff: new BABYLON.Color3(0.58, 0.06, 0.12), edge: new BABYLON.Color3(1.0,  0.1,  0.2) },
   ],
 
+  crystalSpawns: [
+    { x:  6,  z:  6,  y: 1.0 },
+    { x: -6,  z:  6,  y: 1.0 },
+    { x:  6,  z: -6,  y: 1.0 },
+    { x: -6,  z: -6,  y: 1.0 },
+    { x:  0,  z: 10,  y: 1.0 },
+    { x: 10,  z:  0,  y: 1.0 },
+    { x: -10, z:  0,  y: 1.0 },
+    { x:  4,  z:  4,  y: 2.0 },
+  ],  
+
+
   spawnPoint: new BABYLON.Vector3(0, 3, 0),
 };
 
 export class Scene1 extends SceneBase {
+  
   get clearColor() { return CFG.clearColor; }
   get fogColor()   { return CFG.fogColor; }
   get fogDensity() { return CFG.fogDensity; }
   get spawnPoint() { return CFG.spawnPoint; }
+  get crystalSpawns() { return CFG.crystalSpawns; }    
 
   build() {
     this._buildGround(CFG.ground);

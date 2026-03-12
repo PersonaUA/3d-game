@@ -9,13 +9,15 @@ import { SceneBase } from './SceneBase.js';
 const C = BABYLON.Color3;
 const C4 = BABYLON.Color4;
 
+const FLOAT_AMP = 1.0;
+
 const CFG = {
 
     // Тёмная атмосфера — слабый hemi, нет sun
-    hemiIntensity: 3.0,
+    hemiIntensity: 0.5,
     hemiDiffuse:   new BABYLON.Color3(0.8, 0.88, 1.0),
     hemiGround:    new BABYLON.Color3(0.3, 0.25, 0.45),
-    sunIntensity:  3.5,
+    sunIntensity:  0.5,
 
   clearColor: new C4(0.03, 0.04, 0.10, 1),
   fogColor:   new C(0.03, 0.04, 0.10),
@@ -73,6 +75,24 @@ const CFG = {
     [  9, 24,  8.0, new C(0.0, 1.0, 0.4)   ],
     [ -9, 26,  9.0, new C(1.0, 0.75, 0.0)  ],
   ],
+
+  crystalSpawns: [
+    { x:  4,  z:  3,  y: 1.6  },  // платформа уровень 1
+    { x: -4,  z:  4,  y: 1.6  },
+    { x:  2,  z:  7,  y: 1.9  },
+    { x: -3,  z:  9,  y: 2.9  },  // уровень 2
+    { x:  5,  z: 10,  y: 2.9  },
+    { x:  0,  z: 12,  y: 3.2  },
+    { x: -5,  z: 13,  y: 4.4  },  // уровень 3
+    { x:  4,  z: 14,  y: 4.4  },
+    { x:  0,  z: 16,  y: 4.9  },
+    { x:  0,  z: 21,  y: 6.4  },  // уровень 4
+    { x:  4,  z: 22,  y: 6.9  },
+    { x:  0,  z: 24,  y: 8.4  },  // уровень 5
+    { x: -3,  z: 25,  y: 8.9  },
+    { x:  3,  z: 26,  y: 9.4  },
+    { x:  0,  z: 28,  y: 9.9  },  // финальная платформа
+  ]
 };
 
 export class Scene3 extends SceneBase {
@@ -80,6 +100,8 @@ export class Scene3 extends SceneBase {
   get fogColor()   { return CFG.fogColor;   }
   get fogDensity() { return CFG.fogDensity; }
   get spawnPoint() { return CFG.spawnPoint; }
+
+  get crystalSpawns() { return CFG.crystalSpawns; }
 
   // Тёмная атмосфера — слабый hemi, нет sun
   get hemiIntensity() { return CFG.hemiIntensity; }
@@ -95,17 +117,31 @@ export class Scene3 extends SceneBase {
     this._buildGround(CFG.ground);
     CFG.platforms.forEach((p, i) => this._buildPlatform(p, p.diff, p.edge, i));
   //  CFG.crystalTowers.forEach(([x, z, h, color]) => this._buildCrystalTower(x, z, h, color));
-    this._buildFloatingLights();
+    //this._buildFloatingLights();
+    this._buildCableLights(); // вместо _buildFloatingLights
   }
 
   update(dt) {
     this._time += dt;
 
     // Анимируем плавающие огни — медленно покачиваются вверх-вниз
-    this._floatingLights.forEach(({ orb, light, baseY, speed, amp, angle }, i) => {
-      const y = baseY + Math.sin(this._time * speed + angle) * amp;
-      orb.position.y  = y;
-      if (light) light.position.y = y;
+    // this._floatingLights.forEach(({ orb, light, baseY, speed, amp, angle }, i) => {
+    //   const y = baseY + Math.sin(this._time * speed + angle) * amp;
+    //   orb.position.y  = y;
+    //   if (light) light.position.y = y;
+    // });
+    this._floatingLights.forEach(({ orb, light, x, z, yBot, yTop, baseY, speed, amp, angle }) => {
+        // Сфера скользит вдоль троса — синусоида между yBot и yTop
+        const mid = (yBot + yTop) / 2;
+        const range = (yTop - yBot) / 2 - 0.2;
+        const y = mid + Math.sin(this._time * speed + angle) * range;
+
+        orb.position.set(x, y, z);
+        if (light) {
+        light.position.x = x;
+        light.position.y = y;
+        light.position.z = z;
+        }
     });
   }
 
@@ -163,16 +199,16 @@ export class Scene3 extends SceneBase {
   // Плавающие светящиеся сферы вдоль маршрута
   _buildFloatingLights() {
     const orbs = [
-      { x:  0,  z:  5,  baseY: 2.5,  color: new C(0.0,  1.0,  0.85), speed: 0.8,  amp: 0.4 },
-      { x: -2,  z: 10,  baseY: 3.5,  color: new C(0.85, 0.1,  1.0),  speed: 0.6,  amp: 0.5 },
-      { x:  3,  z: 14,  baseY: 5.0,  color: new C(0.0,  0.6,  1.0),  speed: 1.0,  amp: 0.3 },
-      { x: -1,  z: 18,  baseY: 6.5,  color: new C(1.0,  0.5,  0.0),  speed: 0.7,  amp: 0.4 },
-      { x:  2,  z: 22,  baseY: 7.5,  color: new C(0.0,  1.0,  0.4),  speed: 0.9,  amp: 0.5 },
-      { x: -2,  z: 26,  baseY: 9.5,  color: new C(1.0,  0.85, 0.0),  speed: 0.5,  amp: 0.3 },
+      { x:  0,  z:  5,  baseY: 2.5,  color: new C(0.0,  1.0,  0.85), speed: 0.8,  amp: FLOAT_AMP },
+      { x: -2,  z: 10,  baseY: 3.5,  color: new C(0.85, 0.1,  1.0),  speed: 0.6,  amp: FLOAT_AMP + 1 },
+      { x:  3,  z: 14,  baseY: 5.0,  color: new C(0.0,  0.6,  1.0),  speed: 1.0,  amp: FLOAT_AMP + 2 },
+      { x: -1,  z: 18,  baseY: 6.5,  color: new C(1.0,  0.5,  0.0),  speed: 0.7,  amp: FLOAT_AMP + 3 },
+      { x:  2,  z: 22,  baseY: 7.5,  color: new C(0.0,  1.0,  0.4),  speed: 0.9,  amp: FLOAT_AMP + 4 },
+      { x: -2,  z: 26,  baseY: 9.5,  color: new C(1.0,  0.85, 0.0),  speed: 0.5,  amp: FLOAT_AMP + 5 },
     ];
 
     orbs.forEach(({ x, z, baseY, color, speed, amp }, i) => {
-      const orb = BABYLON.MeshBuilder.CreateSphere(`orb_${i}`, { diameter: 0.3, segments: 6 }, this.scene);
+      const orb = BABYLON.MeshBuilder.CreateSphere(`orb_${i}`, { diameter: 0.1, segments: 6 }, this.scene);
       orb.position.set(x, baseY, z);
 
       const mat = new BABYLON.StandardMaterial(`orbMat_${i}`, this.scene);
@@ -182,17 +218,74 @@ export class Scene3 extends SceneBase {
 
       // Свет только для первых 4
       let light = null;
-      if (i < 2) {
+      if (i < 6) {
         light = new BABYLON.PointLight(`orbLight_${i}`, orb.position.clone(), this.scene);
         light.diffuse   = color;
         light.specular  = color;
-        light.intensity = 2.4;
-        light.range     = 8;
+        light.intensity = 10;
+        light.range     = 4;
         this._lights.push(light);
       }
 
       this._floatingLights.push({ orb, light, baseY, speed, amp, angle: i * 1.1 });
       this._meshes.push(orb);
+    });
+  }
+
+  _buildCableLights() {
+    const cables = [
+        { x:  0,  z:  5,  yBot: 0.1, yTop: 20.0, color: new BABYLON.Color3(0.0,  1.0,  0.85), speed: 0.6, amp: 3.5 },
+        { x: -2,  z: 11,  yBot: 0.1, yTop: 20.0, color: new BABYLON.Color3(0.85, 0.1,  1.0),  speed: 0.5, amp: 3.0 },
+        { x:  3,  z: 17,  yBot: 0.1, yTop: 20.0, color: new BABYLON.Color3(0.0,  0.6,  1.0),  speed: 0.8, amp: 4.0 },
+        { x: -1,  z: 22,  yBot: 0.1, yTop: 20.0, color: new BABYLON.Color3(1.0,  0.5,  0.0),  speed: 0.4, amp: 4.5 },
+        { x: -2,  z: 26,  yBot: 0.1, yTop: 20.0, color: new BABYLON.Color3(0.9,  0.9,  0.9),  speed: 0.7, amp: 4.7 },
+    ];
+
+    cables.forEach(({ x, z, yBot, yTop, color, speed, amp }, i) => {
+        const h = yTop - yBot;
+
+        // Трос — тонкий цилиндр
+        const cable = BABYLON.MeshBuilder.CreateCylinder(`cable_${i}`, {
+        height: h,
+        diameterTop: 0.02,
+        diameterBottom: 0.02,
+        tessellation: 4,
+        }, this.scene);
+        cable.position.set(x, yBot + h / 2, z);
+
+        const cableMat = new BABYLON.StandardMaterial(`cableMat_${i}`, this.scene);
+        cableMat.diffuseColor  = new BABYLON.Color3(0.15, 0.17, 0.25);
+        cableMat.emissiveColor = new BABYLON.Color3(0.04, 0.05, 0.10);
+        cable.material = cableMat;
+        this._meshes.push(cable);
+
+        // Сфера на тросе
+        const orb = BABYLON.MeshBuilder.CreateSphere(`orb_${i}`, {
+        diameter: 0.1, segments: 6,
+        }, this.scene);
+
+        const orbMat = new BABYLON.StandardMaterial(`orbMat_${i}`, this.scene);
+        orbMat.emissiveColor   = color;
+        orbMat.disableLighting = true;
+        orb.material = orbMat;
+        this._meshes.push(orb);
+
+        // Свет от сферы
+        let light = null;
+        if (i < 10) {
+        light = new BABYLON.PointLight(`orbLight_${i}`,
+            new BABYLON.Vector3(x, yBot + h / 2, z), this.scene
+        );
+        light.diffuse   = color;
+        light.specular  = color;
+        light.intensity = 10;
+        light.range     = 4;
+        this._lights.push(light);
+        }
+
+        // baseY — центр диапазона движения
+        const baseY = yBot + amp;
+        this._floatingLights.push({ orb, light, x, z, baseY, yBot, yTop, speed, amp, angle: i * 1.5 });
     });
   }
 }

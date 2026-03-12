@@ -25,7 +25,8 @@ export class SceneBase {
   get sunDiffuse()      { return new BABYLON.Color3(1.0, 0.95, 0.82); }
   get sunDirection()    { return new BABYLON.Vector3(-1, -2.5, -1); }
 
-
+  // Точки спавна кристаллов — переопредели в наследнике
+  get crystalSpawns() { return []; }
 
   /** Строит всю сцену — вызывается один раз */
   build() { throw new Error(`${this.constructor.name}.build() not implemented`); }

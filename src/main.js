@@ -27,17 +27,7 @@ async function main() {
   const playerData = await loadPlayer();
   const savedCrystals = playerData?.crystals ?? 0;
 
-  // ── Точки спавна кристаллов (для сцены 1) ────────────────────────────────
-  const CRYSTAL_SPAWNS_SCENE_1 = [
-    { x:  6,  z:  6,  y: 1.0 },
-    { x: -6,  z:  6,  y: 1.0 },
-    { x:  6,  z: -6,  y: 1.0 },
-    { x: -6,  z: -6,  y: 1.0 },
-    { x:  0,  z: 10,  y: 1.0 },
-    { x: 10,  z:  0,  y: 1.0 },
-    { x: -10, z:  0,  y: 1.0 },
-    { x:  4,  z:  4,  y: 2.0 },  // на платформе
-  ];
+  
 
   let crystalManager = null;
   let currentSceneId   = DEFAULT_SCENE;
@@ -61,10 +51,8 @@ async function main() {
     const el = document.getElementById('scene-display');
     if (el) el.textContent = `SCENE ${id}`;
 
-    // Спавним кристаллы (пока только для сцены 1)
-    const spawns = id === 1 ? CRYSTAL_SPAWNS_SCENE_1 : [];
-    
-    //const spawns = []; // временно отключены
+    // Спавним кристаллы из настроек сцены
+    const spawns = currentSceneInst.crystalSpawns;
     
     if (spawns.length > 0) {
       crystalManager = new CrystalManager(scene, spawns);
@@ -201,6 +189,11 @@ async function main() {
     }
 
     const result = character.update(input.state, camYaw);
+
+    // Респавн если упал в бездну
+    if (character.position.y < -10) {
+      character.respawn(currentSceneInst.spawnPoint);
+    }
 
     mp.sendPosition(character.position, camYaw, result.state, performance.now()); // MULTIPLAYER
 

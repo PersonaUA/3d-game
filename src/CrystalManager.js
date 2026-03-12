@@ -15,7 +15,7 @@ const COLLECT_RADIUS = 1.5;
 const SAVE_INTERVAL  = 5000;
 const RESPAWN_DELAY  = 8000;
 const FLOAT_SPEED    = 1.2;
-const FLOAT_AMP      = 0.25;
+const FLOAT_AMP      = 0.1;
 const ROTATE_SPEED   = 1.0;
 
 let _audioCtx = null;
@@ -111,7 +111,7 @@ export class CrystalManager {
 
       root.setEnabled(true);
       root.position = new BABYLON.Vector3(pt.x, baseY, pt.z);
-      root.scaling  = new BABYLON.Vector3(0.005, 0.005, 0.005);
+      root.scaling  = new BABYLON.Vector3(0.003, 0.003, 0.003);
       //root.rotation = new BABYLON.Vector3(Math.PI, 0, 0); // острие вниз
 
 
