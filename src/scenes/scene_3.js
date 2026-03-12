@@ -102,6 +102,7 @@ export class Scene3 extends SceneBase {
   get spawnPoint() { return CFG.spawnPoint; }
 
   get crystalSpawns() { return CFG.crystalSpawns; }
+  get crystalRespawn() { return Infinity; }
 
   // Тёмная атмосфера — слабый hemi, нет sun
   get hemiIntensity() { return CFG.hemiIntensity; }

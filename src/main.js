@@ -34,6 +34,9 @@ async function main() {
   let currentSceneInst = null;
   let character        = null;  // объявляем заранее — loadScene может обратиться до load()
 
+  // Объявляем mp заранее — используется внутри loadScene
+  let mp = null;
+
   async function loadScene(id) {
     if (currentSceneInst) currentSceneInst.dispose();
     if (crystalManager)   { crystalManager.dispose(); crystalManager = null; }
@@ -55,8 +58,16 @@ async function main() {
     const spawns = currentSceneInst.crystalSpawns;
     
     if (spawns.length > 0) {
-      crystalManager = new CrystalManager(scene, spawns);
+      crystalManager = new CrystalManager(
+        scene, spawns, currentSceneInst.crystalRespawn,
+        (index) => mp?.notifyCrystalCollected(index) // ?. — mp может быть null при первой загрузке
+      );
       await crystalManager.init(savedCrystals);
+
+      // Подписываемся на кристаллы других игроков
+      mp?.onCrystalCollected((index) => {
+        crystalManager?.hideRemote(index); // скрываем кристалл собранный другим
+      });
     }
   }
 
@@ -73,13 +84,15 @@ async function main() {
     character.respawn(new BABYLON.Vector3(playerData.pos_x, 3, playerData.pos_y));
   }
 
-
-  // После character.load():
-  const mp = new MultiplayerManager(scene, shadowGen);
-
-  console.log('player');
-
+  // Теперь инициализируем mp — после loadScene
+  mp = new MultiplayerManager(scene, shadowGen);
   await mp.connect(playerData?.username ?? 'player');
+
+  // Подписываемся на кристаллы после подключения
+  mp.onCrystalCollected((index) => {
+    crystalManager?.hideRemote(index);
+  });
+
 
 
   // ── Input ─────────────────────────────────────────────────────────────────

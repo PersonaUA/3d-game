@@ -27,6 +27,7 @@ export class SceneBase {
 
   // Точки спавна кристаллов — переопредели в наследнике
   get crystalSpawns() { return []; }
+  get crystalRespawn() { return 15000; } // ms, по умолчанию 15 сек
 
   /** Строит всю сцену — вызывается один раз */
   build() { throw new Error(`${this.constructor.name}.build() not implemented`); }

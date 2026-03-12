@@ -13,7 +13,7 @@ import { saveProgress } from './api.js';
 const CRYSTAL_MODEL  = 'assets/models/diamond.glb';
 const COLLECT_RADIUS = 1.5;
 const SAVE_INTERVAL  = 5000;
-const RESPAWN_DELAY  = 8000;
+const RESPAWN_DELAY  = Infinity; // 8000;
 const FLOAT_SPEED    = 1.2;
 const FLOAT_AMP      = 0.1;
 const ROTATE_SPEED   = 1.0;
@@ -77,7 +77,10 @@ function playCollectSound() {
 }
 
 export class CrystalManager {
-  constructor(scene, spawnPoints) {
+
+  constructor(scene, spawnPoints, respawnDelay = 15000, onCollect = null) {
+    this._onCollect = onCollect;
+    this._respawnDelay = respawnDelay;
     this._scene          = scene;
     this._spawnPoints    = spawnPoints;
     this._crystals       = [];
@@ -91,6 +94,13 @@ export class CrystalManager {
     this._updateHUD();
     await Promise.all(this._spawnPoints.map((pt, i) => this._spawnCrystal(pt, i)));
     console.log(`[CrystalManager] ${this._crystals.length} crystals ready`);
+  }
+
+  hideRemote(index) {
+    const crystal = this._crystals[index];
+    if (!crystal || crystal.collected) return;
+    crystal.collected = true;
+    crystal.mesh.setEnabled(false);
   }
 
   async _spawnCrystal(pt, idx) {
@@ -213,6 +223,9 @@ export class CrystalManager {
     this._updateHUD();
     playCollectSound();
     this._save(); // без await
+
+    // Уведомляем сервер
+    if (this._onCollect) this._onCollect(crystal.index);
   }
 
   _respawn(crystal) {

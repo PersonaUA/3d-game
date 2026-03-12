@@ -20,7 +20,7 @@ export const CHAR = {
   walkSpeed:    0.042,
   runSpeed:     0.13,
   strafeSpeed:  0.015,   // скорость стрейфа A/D — меньше чем ходьба вперёд
-  jumpImpulse:  0.22,
+  jumpImpulse:  0.25,
   gravity:      0.012,
   rotateSpeed:  0.10,
   turnSpeed:    0.35,
