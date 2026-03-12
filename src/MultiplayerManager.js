@@ -58,10 +58,14 @@ export class MultiplayerManager {
       console.log(`[MP] crystal onAdd key=${key} collected=${crystal.collected}`);
 
       callbacks.onChange(crystal, () => {
+        console.log(`[MP] crystal onChange key=${key} collected=${crystal.collected}`);
         if (crystal.collected) callback(Number(key));
       });
       // Новый игрок — сразу скрываем уже собранные
-      if (crystal.collected) callback(Number(key));
+      if (crystal.collected) {
+        console.log(`[MP] hiding already collected crystal ${key}`);
+        callback(Number(key));
+      }
     });
   }
 

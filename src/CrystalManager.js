@@ -97,7 +97,13 @@ export class CrystalManager {
   }
 
   hideRemote(index) {
+    
+    console.log(`[crystal] hideRemote index=${index}, crystals count=${this._crystals.length}`);
+    
     const crystal = this._crystals[index];
+    
+    console.log(`[crystal] found:`, crystal);
+
     if (!crystal || crystal.collected) return;
     crystal.collected = true;
     crystal.mesh.setEnabled(false);
