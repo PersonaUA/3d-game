@@ -199,9 +199,10 @@ export class CrystalManager {
       crystal.mesh.rotation.y += ROTATE_SPEED * dt;
 
       // Проверка сбора
-      const dx   = playerPos.x - crystal.mesh.position.x;
-      const dz   = playerPos.z - crystal.mesh.position.z;
-      if (Math.sqrt(dx * dx + dz * dz) < COLLECT_RADIUS) this._collect(crystal, now);
+      const dx = playerPos.x - crystal.mesh.position.x;
+      const dy = playerPos.y - crystal.mesh.position.y;
+      const dz = playerPos.z - crystal.mesh.position.z;
+      if (Math.sqrt(dx * dx + dy * dy + dz * dz) < COLLECT_RADIUS) this._collect(crystal, now);      
     }
 
     // Периодическое сохранение в БД
