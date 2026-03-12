@@ -64,6 +64,8 @@ async function main() {
       );
       await crystalManager.init(savedCrystals);
 
+      mp?.resetCrystals(); // сбрасываем на сервере
+
       // Подписываемся на кристаллы других игроков
       mp?.onCrystalCollected((index) => {
         crystalManager?.hideRemote(index); // скрываем кристалл собранный другим

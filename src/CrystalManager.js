@@ -96,14 +96,22 @@ export class CrystalManager {
     console.log(`[CrystalManager] ${this._crystals.length} crystals ready`);
   }
 
-  hideRemote(index) {
+  // hideRemote(index) {
     
-    console.log(`[crystal] hideRemote index=${index}, crystals count=${this._crystals.length}`);
+  //   console.log(`[crystal] hideRemote index=${index}, crystals count=${this._crystals.length}`);
     
-    const crystal = this._crystals[index];
+  //   const crystal = this._crystals[index];
     
-    console.log(`[crystal] found:`, crystal);
+  //   console.log(`[crystal] found:`, crystal);
 
+  //   if (!crystal || crystal.collected) return;
+  //   crystal.collected = true;
+  //   crystal.mesh.setEnabled(false);
+  // }
+
+  hideRemote(index) {
+    // было: const crystal = this._crystals[index];
+    const crystal = this._crystals.find(c => c.index === index);
     if (!crystal || crystal.collected) return;
     crystal.collected = true;
     crystal.mesh.setEnabled(false);

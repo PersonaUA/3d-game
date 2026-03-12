@@ -74,6 +74,11 @@ export class MultiplayerManager {
     this._room.send("collectCrystal", { index });
   }
 
+  resetCrystals() {
+    if (!this._room) return;
+    this._room.send("resetCrystals");
+  }
+
   // Отправляем свою позицию серверу
   sendPosition(position, yaw, animation, now) {
     if (!this._room) return;
