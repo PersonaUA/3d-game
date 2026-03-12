@@ -96,6 +96,7 @@ export class AnimationController {
     return {
       idle: 1.0,
       walk: ANIM.walkSpeedRatio,
+      walkBack: ANIM.walkBackSpeedRatio,
       run: ANIM.runSpeedRatio,
       jump: ANIM.jumpSpeedRatio,
       strafeLeft:  ANIM.strafeSpeedRatio,

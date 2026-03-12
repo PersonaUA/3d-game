@@ -18,6 +18,7 @@ export const ASSETS = {
 // ─── Character physics ────────────────────────────────────────────────────────
 export const CHAR = {
   walkSpeed:    0.042,
+  walkBackSpeed: 0.042,  // скорость смещения назад
   runSpeed:     0.13,
   strafeSpeed:  0.015,   // скорость стрейфа A/D — меньше чем ходьба вперёд
   jumpImpulse:  0.25,
@@ -32,6 +33,7 @@ export const CHAR = {
 export const ANIM = {
   blendSpeed: 0.15,   // скорость кросс-фейда между состояниями
   walkSpeedRatio: 2.0,
+  walkBackSpeedRatio: 2.0,  // скорость анимации walkBack
   runSpeedRatio:  1.5,
   jumpSpeedRatio: 1.0,
   strafeSpeedRatio: 1.8,

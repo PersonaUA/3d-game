@@ -144,6 +144,8 @@ async function main() {
   setupSlider('runAnim',     ANIM, 'runSpeedRatio',  2);
   setupSlider('strafeSpeed', CHAR, 'strafeSpeed', 3);
   setupSlider('strafeAnim',  ANIM, 'strafeSpeedRatio', 2);
+  setupSlider('walkBackSpeed', CHAR, 'walkBackSpeed', 3);
+  setupSlider('walkBackAnim',  ANIM, 'walkBackSpeedRatio', 2);
 
   // H — показать/скрыть панель
   const tunePanel = document.getElementById('tune-panel');

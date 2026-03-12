@@ -95,11 +95,17 @@ export class CharacterController {
       const rightVec = new BABYLON.Vector3( Math.cos(camYaw), 0, -Math.sin(camYaw));
 
       const baseSpeed = sprint ? CHAR.runSpeed : CHAR.walkSpeed;
+
+      const backSpeed = sprint ? CHAR.runSpeed : CHAR.walkBackSpeed;
+
       const sideSpeed = sprint ? CHAR.runSpeed * 0.6 : CHAR.strafeSpeed;
 
       let moveDir = BABYLON.Vector3.Zero();
       if (fwd)   moveDir = moveDir.add(fwdVec.scale(baseSpeed));
-      if (back)  moveDir = moveDir.subtract(fwdVec.scale(baseSpeed));
+
+      //if (back) moveDir = moveDir.subtract(fwdVec.scale(baseSpeed));
+      if (back) moveDir = moveDir.subtract(fwdVec.scale(backSpeed));
+      
       if (left)  moveDir = moveDir.subtract(rightVec.scale(sideSpeed));
       if (right) moveDir = moveDir.add(rightVec.scale(sideSpeed));
 
