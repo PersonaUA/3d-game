@@ -1,3 +1,10 @@
+// Фильтруем шумные логи Telegram WebApp
+const _origLog = console.log.bind(console);
+console.log = (...args) => {
+  if (typeof args[0] === 'string' && args[0].includes('Telegram.WebView')) return;
+  _origLog(...args);
+};
+
 import { setProgress, hideLoadingScreen }  from './loader.js';
 import { createEngine, createScene, createCamera, createLights, applySceneSettings, createPostProcessing } from './scene.js';
 import { CharacterController }             from './CharacterController.js';
