@@ -174,27 +174,28 @@ _updatePeer(sessionId, state) {
     // Фон — тёмный с лёгкой прозрачностью
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = "rgba(10, 12, 20, 0.75)";
-    const r = 6; // радиус скругления
-    ctx.beginPath();
-    ctx.moveTo(r, 0);
-    ctx.lineTo(W - r, 0);
-    ctx.quadraticCurveTo(W, 0, W, r);
-    ctx.lineTo(W, H - r);
-    ctx.quadraticCurveTo(W, H, W - r, H);
-    ctx.lineTo(r, H);
-    ctx.quadraticCurveTo(0, H, 0, H - r);
-    ctx.lineTo(0, r);
-    ctx.quadraticCurveTo(0, 0, r, 0);
-    ctx.closePath();
+   
+    // const r = 6; // радиус скругления
+    // ctx.beginPath();
+    // ctx.moveTo(r, 0);
+    // ctx.lineTo(W - r, 0);
+    // ctx.quadraticCurveTo(W, 0, W, r);
+    // ctx.lineTo(W, H - r);
+    // ctx.quadraticCurveTo(W, H, W - r, H);
+    // ctx.lineTo(r, H);
+    // ctx.quadraticCurveTo(0, H, 0, H - r);
+    // ctx.lineTo(0, r);
+    // ctx.quadraticCurveTo(0, 0, r, 0);
+    // ctx.closePath();
     ctx.fill();
 
     // Рамка
     ctx.strokeStyle = "rgba(0, 255, 204, 0.35)";
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 1.25;
     ctx.stroke();
 
     // Текст
-    ctx.font = "500 18px 'Courier New'";
+    ctx.font = "500 24px 'Courier New'";
     ctx.fillStyle = "#00ffcc";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
