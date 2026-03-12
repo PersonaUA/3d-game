@@ -1,12 +1,12 @@
 import { CHAR } from './config.js';
 import { AnimationController } from './AnimationController.js';
-
 import { Client, Callbacks } from "@colyseus/sdk";
 
 const COLYSEUS_URL = "wss://3d-game-colyseus.fly.dev";
 const SEND_INTERVAL = 50; // ms — отправка позиции 20 раз в секунду
 
 export class MultiplayerManager {
+
   constructor(scene, shadowGen) {
     this._scene     = scene;
     this._shadowGen = shadowGen;
@@ -21,7 +21,7 @@ export class MultiplayerManager {
 
     this._client = new Client(COLYSEUS_URL);
 
-    this._room = await this._client.joinOrCreate("global_room");
+    this._room = await this._client.joinOrCreate("global_room", { username });
 
     const callbacks = Callbacks.get(this._room);
     
@@ -32,7 +32,7 @@ export class MultiplayerManager {
 
         if (sessionId === this._myId) return;
         console.log(`[MP] player joined: ${sessionId}`);
-        this._spawnPeer(sessionId, player);
+        this._spawnPeer(sessionId, player, username);
 
         callbacks.onChange(player, () => {
             this._updatePeer(sessionId, player);
@@ -64,44 +64,9 @@ export class MultiplayerManager {
     });
   }
 
-  // Спавним меш другого игрока
-//   async _spawnPeer(sessionId, playerState) {
+ 
 
-//     const result = await BABYLON.SceneLoader.ImportMeshAsync(
-//       "", "assets/models/", "timmy5.glb", this._scene
-//     );
-
-//     const root = result.meshes[0];
-//     root.name  = `peer_${sessionId}`;
-
-//     // Обнуляем quaternion — иначе rotation.y не работает
-//     root.rotationQuaternion = null;
-
-
-//     root.position = new BABYLON.Vector3(
-//         playerState.x,
-//         (playerState.y - CHAR.capsuleHeight / 2), // как в #syncModelToCapsule
-//         playerState.z
-//     );
-
-//     root.scaling = new BABYLON.Vector3(1, 1, 1);
-
-//     // Цветовой оттенок чтобы отличать других игроков
-//     result.meshes.forEach(m => {
-//       if (m.material) {
-//         m.material = m.material.clone(`peer_mat_${sessionId}`);
-//         if (m.material.albedoColor) {
-//           m.material.albedoColor = new BABYLON.Color3(0.6, 0.8, 1.0); // голубоватый
-//         }
-//       }
-//     });
-
-//     // Тег с именем игрока
-//     const nameTag = this._createNameTag(playerState.username || sessionId.substring(0, 6));
-//     this._peers.set(sessionId, { root, nameTag, animGroups: result.animationGroups });    
-//   }
-
-async _spawnPeer(sessionId, playerState) {
+async _spawnPeer(sessionId, playerState, username) {
   const result = await BABYLON.SceneLoader.ImportMeshAsync(
     "", "assets/models/", "timmy5.glb", this._scene
   );
@@ -125,7 +90,7 @@ async _spawnPeer(sessionId, playerState) {
     }
   });
 
-  const nameTag = this._createNameTag(playerState.username || sessionId.substring(0, 6));
+  const nameTag = this._createNameTag(username || sessionId.substring(0, 6));
 
   // Загружаем анимации для этого пира
   const skeleton = result.skeletons?.[0] ?? null;
@@ -135,34 +100,6 @@ async _spawnPeer(sessionId, playerState) {
   this._peers.set(sessionId, { root, nameTag, animCtrl });
 }
 
-//   _updatePeer(sessionId, state) {
-//     const peer = this._peers.get(sessionId);
-//     if (!peer) return;
-
-//     // Плавное движение через lerp
-//     //const target = new BABYLON.Vector3(state.x, state.y, state.z);
-//     //peer.root.position = BABYLON.Vector3.Lerp(peer.root.position, target, 0.3);
-
-//     const target = new BABYLON.Vector3(
-//         state.x,
-//         (state.y - CHAR.capsuleHeight / 2),
-//         state.z
-//     );
-//     peer.root.position = BABYLON.Vector3.Lerp(peer.root.position, target, 0.3);
-
-//     // Поворот
-//     peer.root.rotation.y = state.yaw;
-    
-
-//     // Двигаем тег имени
-//     if (peer.nameTag) {
-//       peer.nameTag.position = new BABYLON.Vector3(
-//         peer.root.position.x,
-//         peer.root.position.y + 2.2,
-//         peer.root.position.z
-//       );
-//     }
-//   }
 _updatePeer(sessionId, state) {
   const peer = this._peers.get(sessionId);
   if (!peer) return;
@@ -260,3 +197,69 @@ _updatePeer(sessionId, state) {
     //     console.warn("[MP] connection failed:", e.message);
     //     console.error("[MP] full error:", e);
     // }
+
+     // Спавним меш другого игрока
+//   async _spawnPeer(sessionId, playerState) {
+
+//     const result = await BABYLON.SceneLoader.ImportMeshAsync(
+//       "", "assets/models/", "timmy5.glb", this._scene
+//     );
+
+//     const root = result.meshes[0];
+//     root.name  = `peer_${sessionId}`;
+
+//     // Обнуляем quaternion — иначе rotation.y не работает
+//     root.rotationQuaternion = null;
+
+
+//     root.position = new BABYLON.Vector3(
+//         playerState.x,
+//         (playerState.y - CHAR.capsuleHeight / 2), // как в #syncModelToCapsule
+//         playerState.z
+//     );
+
+//     root.scaling = new BABYLON.Vector3(1, 1, 1);
+
+//     // Цветовой оттенок чтобы отличать других игроков
+//     result.meshes.forEach(m => {
+//       if (m.material) {
+//         m.material = m.material.clone(`peer_mat_${sessionId}`);
+//         if (m.material.albedoColor) {
+//           m.material.albedoColor = new BABYLON.Color3(0.6, 0.8, 1.0); // голубоватый
+//         }
+//       }
+//     });
+
+//     // Тег с именем игрока
+//     const nameTag = this._createNameTag(playerState.username || sessionId.substring(0, 6));
+//     this._peers.set(sessionId, { root, nameTag, animGroups: result.animationGroups });    
+//   }
+
+//   _updatePeer(sessionId, state) {
+//     const peer = this._peers.get(sessionId);
+//     if (!peer) return;
+
+//     // Плавное движение через lerp
+//     //const target = new BABYLON.Vector3(state.x, state.y, state.z);
+//     //peer.root.position = BABYLON.Vector3.Lerp(peer.root.position, target, 0.3);
+
+//     const target = new BABYLON.Vector3(
+//         state.x,
+//         (state.y - CHAR.capsuleHeight / 2),
+//         state.z
+//     );
+//     peer.root.position = BABYLON.Vector3.Lerp(peer.root.position, target, 0.3);
+
+//     // Поворот
+//     peer.root.rotation.y = state.yaw;
+    
+
+//     // Двигаем тег имени
+//     if (peer.nameTag) {
+//       peer.nameTag.position = new BABYLON.Vector3(
+//         peer.root.position.x,
+//         peer.root.position.y + 2.2,
+//         peer.root.position.z
+//       );
+//     }
+//   }

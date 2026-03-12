@@ -43,7 +43,7 @@ export const CAM = {
   minRadius:    3,
   maxRadius:    25,
   pitch:        0.35,
-  minPitch:     0.1,
+  minPitch:     0.1,     // минимальный угол наклона камеры (0 - земля)
   maxPitch:     1.4,
   sensitivity:  0.004,   // горизонтальная чувствительность мыши
   sensitivityY: 0.002,   // вертикальная — вдвое меньше

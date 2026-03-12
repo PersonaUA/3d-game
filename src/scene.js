@@ -31,10 +31,15 @@ export function createLights(scene) {
   sun.diffuse   = new BABYLON.Color3(1.0, 0.95, 0.82);
   sun.specular  = new BABYLON.Color3(1.0, 0.95, 0.82);
 
-  const shadowGen = new BABYLON.ShadowGenerator(2048, sun);
+  // const shadowGen = new BABYLON.ShadowGenerator(2048, sun);
+  // shadowGen.useBlurExponentialShadowMap = true;
+  // shadowGen.blurKernel = 24;
+  // shadowGen.darkness   = 0.25;
+
+  const shadowGen = new BABYLON.ShadowGenerator(1024, sun);
   shadowGen.useBlurExponentialShadowMap = true;
-  shadowGen.blurKernel = 24;
-  shadowGen.darkness   = 0.25;
+  shadowGen.blurKernel = 8;  // было 24 — в 3 раза легче
+  shadowGen.darkness = 0.3;
 
   scene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
     'https://assets.babylonjs.com/environments/environmentSpecular.env',

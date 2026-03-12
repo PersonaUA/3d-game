@@ -86,6 +86,9 @@ async function main() {
 
   // После character.load():
   const mp = new MultiplayerManager(scene, shadowGen);
+
+  console.log('player');
+
   await mp.connect(playerData?.username ?? 'player');
 
 
