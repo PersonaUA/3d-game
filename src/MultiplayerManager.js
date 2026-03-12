@@ -201,7 +201,7 @@ _updatePeer(sessionId, state) {
     ctx.textBaseline = "middle";
     ctx.shadowColor = "rgba(0, 255, 204, 1.0)";
     ctx.shadowBlur = 3;
-    ctx.fillText(username.toUpperCase(), W / 2, H / 2);
+    ctx.fillText(username, W / 2, H / 2);
 
     tex.update();
 
