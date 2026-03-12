@@ -124,7 +124,7 @@ _updatePeer(sessionId, state) {
   if (peer.nameTag) {
     peer.nameTag.position = new BABYLON.Vector3(
       peer.root.position.x,
-      peer.root.position.y + 1.6,
+      peer.root.position.y + 1.9,
       peer.root.position.z
     );
   }
@@ -173,7 +173,7 @@ _updatePeer(sessionId, state) {
 
     // Фон — тёмный с лёгкой прозрачностью
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = "rgba(10, 12, 20, 0.75)";
+    ctx.fillStyle = "rgba(10, 12, 20, 0.6)";
    
     const r = 6; // радиус скругления
     ctx.beginPath();
@@ -195,7 +195,7 @@ _updatePeer(sessionId, state) {
     // ctx.stroke();
 
     // Текст
-    ctx.font = "500 48px 'Courier New'";
+    ctx.font = "500 36px 'Courier New'";
     ctx.fillStyle = "#00ffcc";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
