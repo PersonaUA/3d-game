@@ -138,8 +138,6 @@ export class CrystalManager {
       root.scaling  = new BABYLON.Vector3(0.003, 0.003, 0.003);
       //root.rotation = new BABYLON.Vector3(Math.PI, 0, 0); // острие вниз
 
-
-
       // Все дочерние меши тоже делаем видимыми
       result.meshes.forEach(m => {
         m.isVisible       = true;
