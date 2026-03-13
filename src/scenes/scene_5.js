@@ -114,6 +114,16 @@ export class Scene5 extends SceneBase {
 
   _trolleys     = [];   // подвижные платформы
   _activeTrolley = null;
+
+   // Аудио тележки
+  _audioCtx   = null;
+  _audioOsc   = null;  // осциллятор
+  _audioGain  = null;  // громкость
+  _audioSpeed = 0;     // текущая «скорость» тележки (abs delta/dt)
+  _characterPos  = null;
+  _characterRef  = null;
+
+
   _characterPos  = null;
   _characterRef  = null;
 
@@ -409,6 +419,9 @@ export class Scene5 extends SceneBase {
 
     this._meshes.push(box, rim);
 
+    // Поручни на 2 боковых сторонах (перпендикулярно направлению движения)
+    this._buildTrolleyRailing(id, box, axis, topY, color);
+
     const sinPhase = Math.random() * Math.PI * 2;
     const sinSpeed = MAX_SPEED + Math.random() * MAX_RANDOM_K_SPEED; // 0.35 + Math.random() * 0.2;
 
@@ -455,6 +468,7 @@ export class Scene5 extends SceneBase {
     }
 
     // Все тележки движутся автоматически, игрок едет вместе с тележкой под ним
+    let riderSpeed = 0; // скорость тележки под игроком
     for (const t of this._trolleys) {
       t.sinTime += dt * t.sinSpeed;
       const amp    = (t.max - t.min) / 2;
@@ -467,7 +481,19 @@ export class Scene5 extends SceneBase {
       if (this._characterRef && t === this._activeTrolley) {
         if (t.axis === 'x') this._characterRef.position.x += delta;
         else                this._characterRef.position.z += delta;
+        // Нормализуем скорость: delta/dt / maxSpeed
+        // maxSpeed ≈ amp * sinSpeed (пик скорости синуса)
+        const maxSpeed = amp * t.sinSpeed;
+        riderSpeed = maxSpeed > 0 ? Math.abs(delta / dt) / maxSpeed : 0;
       }
+    }
+
+    // Звук — только когда едем
+    if (this._activeTrolley) {
+      this._initAudio();
+      this._updateTrolleySound(riderSpeed);
+    } else {
+      this._stopTrolleySound();
     }
   }
 
@@ -480,6 +506,125 @@ export class Scene5 extends SceneBase {
       t.box.position.z = pos;
       t.rim.position.z = pos;
     }
+  }
+
+
+  _buildTrolleyRailing(id, box, axis, topY, color) {
+    const railMat = new BABYLON.StandardMaterial(`trolRailMat_${id}`, this.scene);
+    railMat.diffuseColor  = new BABYLON.Color3(0.07, 0.07, 0.08);
+    railMat.specularColor = new BABYLON.Color3(0, 0, 0);
+    railMat.emissiveColor = color.scale(0.18);
+
+    const platTop = topY + PLAT_H / 2;  // верхняя поверхность тележки
+    const railBot = platTop;
+    const railTop = platTop + RAIL_H;
+    const railMid = platTop + RAIL_H / 2;
+    const half    = TROLLEY_SIZE / 2;
+
+    // axis='x': тележка едет вдоль X → закрываем стороны по Z (±half по Z)
+    // axis='z': тележка едет вдоль Z → закрываем стороны по X (±half по X)
+
+    // Горизонтальная труба вдоль X (нижняя и верхняя)
+    const tubeX = (yPos, zOff) => {
+      const t = BABYLON.MeshBuilder.CreateCylinder(`trX_${id}_${yPos}_${zOff}`,
+        { height: TROLLEY_SIZE, diameterTop: RAIL_D, diameterBottom: RAIL_D, tessellation: 4 }, this.scene);
+      t.rotation.z = Math.PI / 2;
+      t.position.set(box.position.x, yPos, box.position.z + zOff);
+      t.material = railMat;
+      t.parent = box; // двигается вместе с тележкой
+      t.position.x = 0; t.position.z = zOff; t.position.y = yPos - box.position.y;
+      this._meshes.push(t);
+    };
+
+    // Горизонтальная труба вдоль Z
+    const tubeZ = (yPos, xOff) => {
+      const t = BABYLON.MeshBuilder.CreateCylinder(`trZ_${id}_${yPos}_${xOff}`,
+        { height: TROLLEY_SIZE, diameterTop: RAIL_D, diameterBottom: RAIL_D, tessellation: 4 }, this.scene);
+      t.rotation.x = Math.PI / 2;
+      t.position.set(box.position.x + xOff, yPos, box.position.z);
+      t.material = railMat;
+      t.parent = box;
+      t.position.x = xOff; t.position.z = 0; t.position.y = yPos - box.position.y;
+      this._meshes.push(t);
+    };
+
+    // Вертикальная стойка (крепится к box)
+    const postRel = (xOff, zOff) => {
+      const p = BABYLON.MeshBuilder.CreateCylinder(`trP_${id}_${xOff}_${zOff}`,
+        { height: RAIL_H, diameterTop: RAIL_D * 1.8, diameterBottom: RAIL_D * 1.8, tessellation: 4 }, this.scene);
+      p.material = railMat;
+      p.parent = box;
+      p.position.set(xOff, railMid - box.position.y, zOff);
+      this._meshes.push(p);
+    };
+
+    if (axis === 'x') {
+      // Закрываем стороны Z = ±half
+      // Нижние и верхние трубы вдоль X
+      tubeX(railBot, -half);
+      tubeX(railTop, -half);
+      tubeX(railBot,  half);
+      tubeX(railTop,  half);
+      // Угловые стойки
+      postRel(-half, -half); postRel( half, -half);
+      postRel(-half,  half); postRel( half,  half);
+    } else {
+      // Закрываем стороны X = ±half
+      tubeZ(railBot, -half);
+      tubeZ(railTop, -half);
+      tubeZ(railBot,  half);
+      tubeZ(railTop,  half);
+      postRel(-half, -half); postRel( half, -half);
+      postRel(-half,  half); postRel( half,  half);
+    }
+  }
+
+  _initAudio() {
+    if (this._audioCtx) return;
+    try {
+      this._audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+
+      // Осциллятор — лёгкий синус
+      this._audioOsc  = this._audioCtx.createOscillator();
+      this._audioOsc.type = 'sine';
+      this._audioOsc.frequency.value = 180;
+
+      // Небольшой фильтр — убирает резкость
+      this._audioFilter = this._audioCtx.createBiquadFilter();
+      this._audioFilter.type = 'lowpass';
+      this._audioFilter.frequency.value = 800;
+
+      // Гейн — начинаем тихо
+      this._audioGain = this._audioCtx.createGain();
+      this._audioGain.gain.value = 0;
+
+      this._audioOsc.connect(this._audioFilter);
+      this._audioFilter.connect(this._audioGain);
+      this._audioGain.connect(this._audioCtx.destination);
+      this._audioOsc.start();
+    } catch(e) {}
+  }
+
+  _updateTrolleySound(speed) {
+    if (!this._audioCtx) return;
+    const ctx  = this._audioCtx;
+    const now  = ctx.currentTime;
+
+    // speed [0..1] нормализованная
+    const s = Math.min(1, speed);
+
+    // Частота: 160 Гц (стоим) → 420 Гц (максимум)
+    const freq = 160 + s * 260;
+    // Громкость: 0 → 0.06 (очень тихо)
+    const gain = s * 0.02;
+
+    this._audioOsc.frequency.setTargetAtTime(freq, now, 0.15);
+    this._audioGain.gain.setTargetAtTime(gain, now, 0.15);
+  }
+
+  _stopTrolleySound() {
+    if (!this._audioGain || !this._audioCtx) return;
+    this._audioGain.gain.setTargetAtTime(0, this._audioCtx.currentTime, 0.12);
   }
 
   setCharacterPos(pos) { this._characterPos = pos; }
