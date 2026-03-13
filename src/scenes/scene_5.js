@@ -1,5 +1,7 @@
 import { SceneBase } from './SceneBase.js';
 import { createPixelGroundMaterial } from '../PixelGround.js';
+import { createCarbonMaterial } from '../CarbonMaterial.js';
+
 /**
  * SCENE 5 — Cable Grid
  *
@@ -155,26 +157,15 @@ export class Scene5 extends SceneBase {
           diff, edge, `s_${col}_${row}`
         );
 
-        // Декоративный номер-столбик в центре станции (тонкий цилиндр)
-        // const pillar = BABYLON.MeshBuilder.CreateCylinder(`pillar_${col}_${row}`, {
-        //   height: 4.0, diameter: 0.2, tessellation: 8,
-        // }, this.scene);
-        // pillar.position.set(x, LEVEL_Y + 2.0, z);
-        // const pMat = new BABYLON.StandardMaterial(`pillarMat_${col}_${row}`, this.scene);
-        // pMat.emissiveColor   = edge;
-        // pMat.disableLighting = true;
-        // pillar.material = pMat;
-        // this._meshes.push(pillar);
-
-        // const beacon = BABYLON.MeshBuilder.CreateSphere(`beacon_${col}_${row}`, {
-        //   diameter: 0.6, segments: 6,
-        // }, this.scene);
-        // beacon.position.set(x, LEVEL_Y + 4.3, z);
-        // const bMat = new BABYLON.StandardMaterial(`beaconMat_${col}_${row}`, this.scene);
-        // bMat.emissiveColor   = edge;
-        // bMat.disableLighting = true;
-        // beacon.material = bMat;
-        // this._meshes.push(beacon);
+        const carbonMat = createCarbonMaterial(this.scene);
+        const sides = BABYLON.MeshBuilder.CreateBox(`sides_${col}_${row}`, {
+          width: STATION_SIZE + 0.02,  // чуть шире
+          height: PLAT_H + 0.02,       // чуть выше
+          depth: STATION_SIZE + 0.02   // чуть глубже
+        }, this.scene);
+        sides.position.set(x, LEVEL_Y - PLAT_H / 2, z);
+        sides.material = carbonMat;
+        this._meshes.push(sides);
 
         // Поручни
         this._buildRailing(x, z, edge, col, row);
@@ -422,6 +413,17 @@ export class Scene5 extends SceneBase {
     rim.material = rimMat;
 
     this._meshes.push(box, rim);
+
+    const carbonMat = createCarbonMaterial(this.scene);
+    const sides = BABYLON.MeshBuilder.CreateBox(`trolSides_${id}`, {
+      width: w + 0.02,
+      height: h + 0.02,
+      depth: d + 0.02,
+    }, this.scene);
+    sides.parent = box;
+    sides.position.set(0, 0, 0);
+    sides.material = carbonMat;
+    this._meshes.push(sides);
 
     // Поручни на 2 боковых сторонах (перпендикулярно направлению движения)
     this._buildTrolleyRailing(id, box, axis, topY, color);
