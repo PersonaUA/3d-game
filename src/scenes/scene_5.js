@@ -78,7 +78,7 @@ function platEase(t) {
 const CFG = {
   clearColor: new C4(0.03, 0.04, 0.10, 1),
   fogColor:   new C(0.03, 0.04, 0.10),
-  fogDensity: 0.010,
+  fogDensity: 0.015,
   ground: { size: 600, baseColor: new C(0.06, 0.07, 0.12), gridMinorColor: '#1a1e2e', gridMajorColor: '#00ffcc14' },
   hemiIntensity: 0.7,
   hemiDiffuse:   new BABYLON.Color3(0.8, 0.88, 1.0),
