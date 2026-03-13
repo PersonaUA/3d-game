@@ -103,7 +103,7 @@ export function createPixelGroundMaterial(scene) {
   // Анимация — очень медленно, почти незаметно
   let t = 0;
   scene.registerBeforeRender(() => {
-    t += 0.16;
+    t += 0.016;
     mat.setFloat("uTime", t);
   });
 
