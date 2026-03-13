@@ -223,7 +223,14 @@ async function main() {
 
 
     updateHUD({ ...result, camYaw }, engine);
-    if (currentSceneInst) currentSceneInst.update(dt);
+    
+    if (currentSceneInst) {
+      currentSceneInst.update(dt);
+      currentSceneInst.setCharacterPos?.(character.position); // для scene_4
+      currentSceneInst.setCharacterRef?.(character); // ← добавь это
+    }
+
+
     if (crystalManager)   crystalManager.update(character.position, dt);
 
     const cp     = character.position;

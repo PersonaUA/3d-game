@@ -2,8 +2,7 @@ import { SceneBase } from './SceneBase.js';
 
 /**
  * SCENE 3 — Neon Ascent
- * Вертикальный платформер: прыгай по блокам снизу вверх.
- * Без фонарных столбов — вместо них светящиеся кристаллические башни и плавающие огни.
+ * Вертикальный платформер: прыгай по блокам снизу вверх. 
  */
 
 const C = BABYLON.Color3;
@@ -116,21 +115,13 @@ export class Scene3 extends SceneBase {
 
   build() {
     this._buildGround(CFG.ground);
-    CFG.platforms.forEach((p, i) => this._buildPlatform(p, p.diff, p.edge, i));
-  //  CFG.crystalTowers.forEach(([x, z, h, color]) => this._buildCrystalTower(x, z, h, color));
-    //this._buildFloatingLights();
+    CFG.platforms.forEach((p, i) => this._buildPlatform(p, p.diff, p.edge, i));  
     this._buildCableLights(); // вместо _buildFloatingLights
   }
 
   update(dt) {
     this._time += dt;
-
-    // Анимируем плавающие огни — медленно покачиваются вверх-вниз
-    // this._floatingLights.forEach(({ orb, light, baseY, speed, amp, angle }, i) => {
-    //   const y = baseY + Math.sin(this._time * speed + angle) * amp;
-    //   orb.position.y  = y;
-    //   if (light) light.position.y = y;
-    // });
+    
     this._floatingLights.forEach(({ orb, light, x, z, yBot, yTop, baseY, speed, amp, angle }) => {
         // Сфера скользит вдоль троса — синусоида между yBot и yTop
         const mid = (yBot + yTop) / 2;
@@ -143,93 +134,6 @@ export class Scene3 extends SceneBase {
         light.position.y = y;
         light.position.z = z;
         }
-    });
-  }
-
-  // Кристаллическая башня — несколько конусов стопкой
-  _buildCrystalTower(x, z, totalH, color) {
-    const mat = new BABYLON.StandardMaterial(`crystalMat_${x}_${z}`, this.scene);
-    mat.emissiveColor   = color.scale(0.4);
-    mat.diffuseColor    = color.scale(0.3);
-    mat.specularColor   = color;
-    mat.specularPower   = 64;
-
-    const glowMat = new BABYLON.StandardMaterial(`crystalGlow_${x}_${z}`, this.scene);
-    glowMat.emissiveColor   = color;
-    glowMat.disableLighting = true;
-
-    const segments = Math.floor(totalH / 1.2);
-    for (let i = 0; i < segments; i++) {
-      const h    = totalH / segments * (1 - i * 0.08);
-      const dBot = 0.5 - i * 0.04;
-      const dTop = dBot * 0.3;
-      const posY = i * (totalH / segments) + h / 2;
-
-      const shard = BABYLON.MeshBuilder.CreateCylinder(`shard_${x}_${z}_${i}`, {
-        height: h, diameterTop: dTop, diameterBottom: dBot, tessellation: 6,
-      }, this.scene);
-      shard.position.set(x, posY, z);
-      shard.rotation.y = i * 0.4;
-      shard.material   = i % 2 === 0 ? mat : glowMat;
-      this.shadowGen.addShadowCaster(shard);
-      this._meshes.push(shard);
-    }
-
-    // Светящийся кристалл на верхушке
-    const tip = BABYLON.MeshBuilder.CreateCylinder(`tip_${x}_${z}`, {
-      height: 0.6, diameterTop: 0, diameterBottom: 0.25, tessellation: 6,
-    }, this.scene);
-    tip.position.set(x, totalH + 0.3, z);
-    tip.material = glowMat;
-    this._meshes.push(tip);
-
-    // Точечный свет от башни (только первые 4)
-    const lightIdx = CFG.crystalTowers.findIndex(t => t[0] === x && t[1] === z);
-    if (lightIdx < 4) {
-      const light = new BABYLON.PointLight(`towerLight_${x}_${z}`,
-        new BABYLON.Vector3(x, totalH, z), this.scene
-      );
-      light.diffuse   = color;
-      light.specular  = color;
-      light.intensity = 1.5;
-      light.range     = 14;
-      this._lights.push(light);
-    }
-  }
-
-  // Плавающие светящиеся сферы вдоль маршрута
-  _buildFloatingLights() {
-    const orbs = [
-      { x:  0,  z:  5,  baseY: 2.5,  color: new C(0.0,  1.0,  0.85), speed: 0.8,  amp: FLOAT_AMP },
-      { x: -2,  z: 10,  baseY: 3.5,  color: new C(0.85, 0.1,  1.0),  speed: 0.6,  amp: FLOAT_AMP + 1 },
-      { x:  3,  z: 14,  baseY: 5.0,  color: new C(0.0,  0.6,  1.0),  speed: 1.0,  amp: FLOAT_AMP + 2 },
-      { x: -1,  z: 18,  baseY: 6.5,  color: new C(1.0,  0.5,  0.0),  speed: 0.7,  amp: FLOAT_AMP + 3 },
-      { x:  2,  z: 22,  baseY: 7.5,  color: new C(0.0,  1.0,  0.4),  speed: 0.9,  amp: FLOAT_AMP + 4 },
-      { x: -2,  z: 26,  baseY: 9.5,  color: new C(1.0,  0.85, 0.0),  speed: 0.5,  amp: FLOAT_AMP + 5 },
-    ];
-
-    orbs.forEach(({ x, z, baseY, color, speed, amp }, i) => {
-      const orb = BABYLON.MeshBuilder.CreateSphere(`orb_${i}`, { diameter: 0.1, segments: 6 }, this.scene);
-      orb.position.set(x, baseY, z);
-
-      const mat = new BABYLON.StandardMaterial(`orbMat_${i}`, this.scene);
-      mat.emissiveColor   = color;
-      mat.disableLighting = true;
-      orb.material = mat;
-
-      // Свет только для первых 4
-      let light = null;
-      if (i < 6) {
-        light = new BABYLON.PointLight(`orbLight_${i}`, orb.position.clone(), this.scene);
-        light.diffuse   = color;
-        light.specular  = color;
-        light.intensity = 10;
-        light.range     = 4;
-        this._lights.push(light);
-      }
-
-      this._floatingLights.push({ orb, light, baseY, speed, amp, angle: i * 1.1 });
-      this._meshes.push(orb);
     });
   }
 

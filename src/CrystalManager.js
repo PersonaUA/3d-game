@@ -71,8 +71,7 @@ function playCollectSound() {
     noise.stop(now + 0.05);
     osc.start(now);
     osc.stop(now + 0.10);
-
-    //setTimeout(() => ctx.close(), 250);
+  
   } catch (e) {}
 }
 
@@ -95,19 +94,6 @@ export class CrystalManager {
     await Promise.all(this._spawnPoints.map((pt, i) => this._spawnCrystal(pt, i)));
     console.log(`[CrystalManager] ${this._crystals.length} crystals ready`);
   }
-  
-
-  // hideRemote(index) {
-  //   const crystal = this._crystals.find(c => c.index === index);
-  //   console.log(`[crystal] hideRemote index=${index}, found:`, crystal);
-  //   console.log(`[crystal] mesh enabled:`, crystal?.mesh?.isEnabled());
-    
-  //   if (!crystal || crystal.collected) return;
-  //   crystal.collected = true;
-  //   crystal.mesh.setEnabled(false);
-    
-  //   console.log(`[crystal] after hide, enabled:`, crystal.mesh.isEnabled());
-  // }
 
   hideRemote(index) {
     const crystal = this._crystals.find(c => c.index === index);
@@ -136,8 +122,7 @@ export class CrystalManager {
       root.setEnabled(true);
       root.position = new BABYLON.Vector3(pt.x, baseY, pt.z);
       root.scaling  = new BABYLON.Vector3(0.003, 0.003, 0.003);
-      //root.rotation = new BABYLON.Vector3(Math.PI, 0, 0); // острие вниз
-
+      
       // Все дочерние меши тоже делаем видимыми
       result.meshes.forEach(m => {
         m.isVisible       = true;
