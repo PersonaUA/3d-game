@@ -167,10 +167,155 @@ export class Scene5 extends SceneBase {
         sides.material = carbonMat;
         this._meshes.push(sides);
 
+         // Киоск в центре платформы
+        this._buildKiosk(x, z, diff, edge, `${col}_${row}`);
+
         // Поручни
         this._buildRailing(x, z, edge, col, row);
+
+        // Борд с номером станции
+        const stationIndex = col * 3 + row + 1; // 1..9
+        this._buildStationBoard(x, z, edge, stationIndex, 1);
       }
     }
+  }
+
+  _buildKiosk(cx, cz, diffColor, edgeColor, idx) {
+    const KW = 2.0, KH = 2.0, KD = 2.0;
+    const baseY = LEVEL_Y + PLAT_H / 2; // верхняя поверхность платформы
+
+    const carbonMat = createCarbonMaterial(this.scene);
+
+    // ── Цилиндрический корпус — карбон ────────────────────────────────────
+    const sides = BABYLON.MeshBuilder.CreateCylinder(`kioskSides_${idx}`,
+      { height: KH, diameter: 2.2, tessellation: 32 }, this.scene);
+    sides.position.set(cx, baseY + KH / 2, cz);
+    sides.material = carbonMat;
+    this._meshes.push(sides);
+
+    // ── Верхняя крышка — цвет платформы ────────────────────────────────────
+    const top = BABYLON.MeshBuilder.CreateCylinder(`kioskTop_${idx}`,
+      { height: 0.08, diameter: 2.2, tessellation: 32 }, this.scene);
+    top.position.set(cx, baseY + KH + 0.04, cz);
+    const topMat = new BABYLON.StandardMaterial(`kioskTopMat_${idx}`, this.scene);
+    topMat.diffuseColor  = diffColor;
+    topMat.specularColor = new BABYLON.Color3(0.3, 0.3, 0.4);
+    topMat.specularPower = 20;
+    top.material = topMat;
+    this._meshes.push(top);
+
+    // ── Светящийся ободок по краю крышки — цилиндр ────────────────────────
+    const rim = BABYLON.MeshBuilder.CreateCylinder(`kioskRim_${idx}`,
+      { height: 0.05, diameter: 2.5, tessellation: 32 }, this.scene);
+    rim.position.set(cx, baseY + KH + 0.085, cz);
+    const rimMat = new BABYLON.StandardMaterial(`kioskRimMat_${idx}`, this.scene);
+    rimMat.emissiveColor   = edgeColor;
+    rimMat.disableLighting = true;
+    rim.material = rimMat;
+    this._meshes.push(rim);
+
+    // Дверной проём — светящийся сегмент цилиндра поверх шва
+    // Шов у BabylonJS цилиндра всегда на +X стороне (угол 0)
+    const doorArc1 = BABYLON.MeshBuilder.CreateCylinder(`kioskDoorArc_${idx}`, {
+      height: KH - 0.08, // * 0.85,
+      diameter: 2.26,       // чуть больше киоска
+      tessellation: 32,
+      arc: 0.13,            // только ~43° дуги — ширина двери
+    }, this.scene);
+    doorArc1.position.set(cx, baseY + KH / 2 + 0.02, cz);
+    // Поворачиваем чтобы совместить с швом (шов на +X → угол 0)
+    doorArc1.rotation.y = 5.1;
+
+    const doorArc2 = BABYLON.MeshBuilder.CreateCylinder(`kioskDoorArc_${idx}`, {
+      height: KH - 0.08, // * 0.85,
+      diameter: 2.26,       // чуть больше киоска
+      tessellation: 32,
+      arc: 0.13,            // только ~43° дуги — ширина двери
+    }, this.scene);
+    doorArc2.position.set(cx, baseY + KH / 2 + 0.02, cz);
+    // Поворачиваем чтобы совместить с швом (шов на +X → угол 0)
+    doorArc2.rotation.y = 20.8;
+
+    const doorMat = new BABYLON.StandardMaterial(`kioskDoorMat_${idx}`, this.scene);
+    doorMat.emissiveColor   = edgeColor;
+    doorMat.disableLighting = true;
+    doorMat.backFaceCulling = false;
+    doorArc1.material = doorMat;
+    doorArc2.material = doorMat;
+    this._meshes.push(doorArc1);
+    this._meshes.push(doorArc2);
+  }
+
+  _buildStationBoard(cx, cz, color, stationNum, level) {
+    const W = 260, H = 96;
+    const FONT_TITLE = "bold 44px 'Courier New'";
+    const FONT_SUB   = "500 28px 'Courier New'";
+    const lineTitle  = `STATION ${stationNum}`;
+    const lineSub    = `LEVEL ${level}`;
+
+    const tex = new BABYLON.DynamicTexture(`boardTex_${stationNum}`, { width: W, height: H }, this.scene);
+    const ctx = tex.getContext();
+
+    // Фон — полупрозрачный дымчатый прямоугольник
+    const r = 10;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(8, 12, 22, 0.72)";
+    ctx.beginPath();
+    ctx.moveTo(r, 0); ctx.lineTo(W - r, 0);
+    ctx.quadraticCurveTo(W, 0, W, r);
+    ctx.lineTo(W, H - r); ctx.quadraticCurveTo(W, H, W - r, H);
+    ctx.lineTo(r, H); ctx.quadraticCurveTo(0, H, 0, H - r);
+    ctx.lineTo(0, r); ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    // Тонкая рамка цвета станции
+    ctx.strokeStyle = `rgba(${Math.round(color.r*255)}, ${Math.round(color.g*255)}, ${Math.round(color.b*255)}, 0.5)`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Заголовок — яркий, светящийся
+    const cr = Math.round(color.r * 255);
+    const cg = Math.round(color.g * 255);
+    const cb = Math.round(color.b * 255);
+    ctx.font = FONT_TITLE;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = `rgba(${cr}, ${cg}, ${cb}, 1.0)`;
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = `rgb(${Math.min(255,cr+80)}, ${Math.min(255,cg+80)}, ${Math.min(255,cb+80)})`;
+    ctx.fillText(lineTitle, W / 2, H * 0.38);
+
+    // Подзаголовок — тише
+    ctx.font = FONT_SUB;
+    ctx.shadowBlur = 4;
+    ctx.fillStyle = `rgba(${Math.min(255,cr+40)}, ${Math.min(255,cg+40)}, ${Math.min(255,cb+40)}, 0.85)`;
+    ctx.fillText(lineSub, W / 2, H * 0.72);
+
+    tex.update();
+    tex.hasAlpha = true;
+
+    const mat = new BABYLON.StandardMaterial(`boardMat_${stationNum}`, this.scene);
+    mat.diffuseTexture    = tex;
+    mat.emissiveColor     = new BABYLON.Color3(1, 1, 1);
+    mat.disableLighting   = true;
+    mat.backFaceCulling   = false;
+    mat.useAlphaFromDiffuseTexture = true;
+
+    // Размер плоскости пропорционален текстуре
+    const planeW = (W / H) * 0.9;
+    const planeH = 0.9;
+
+    const plane = BABYLON.MeshBuilder.CreatePlane(`board_${stationNum}`, {
+      width: planeW, height: planeH,
+    }, this.scene);
+
+    // Позиция: в центре стороны платформы, на высоте нижнего поручня
+    const boardY = LEVEL_Y + PLAT_H / 2 + RAIL_H * 0.5 + 2.0;
+    plane.position.set(cx, boardY, cz);
+    plane.material = mat;
+    plane.billboardMode = BABYLON.Mesh.BILLBOARDMODE_Y; // поворачивается к камере по горизонтали
+    this._meshes.push(plane);
   }
 
   /**
