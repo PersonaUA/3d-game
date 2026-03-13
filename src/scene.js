@@ -38,7 +38,7 @@ export function createLights(scene) {
 
   const shadowGen = new BABYLON.ShadowGenerator(1024, sun);
   shadowGen.useBlurExponentialShadowMap = true;
-  shadowGen.blurKernel = 8;  // было 24 — в 3 раза легче
+  shadowGen.blurKernel = 8;  // в 3 раза легче
   shadowGen.darkness = 0.3;
 
   scene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(

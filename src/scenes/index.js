@@ -17,4 +17,4 @@ export const SCENES = {
   5: Scene5,
 };
 
-export const DEFAULT_SCENE = 3;
+export const DEFAULT_SCENE = 5;

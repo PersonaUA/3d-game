@@ -1,5 +1,5 @@
 import { SceneBase } from './SceneBase.js';
-
+import { createPixelGroundMaterial } from '../PixelGround.js';
 /**
  * SCENE 5 — Cable Grid
  *
@@ -78,8 +78,8 @@ function platEase(t) {
 const CFG = {
   clearColor: new C4(0.03, 0.04, 0.10, 1),
   fogColor:   new C(0.03, 0.04, 0.10),
-  fogDensity: 0.012,
-  ground: { size: 300, baseColor: new C(0.06, 0.07, 0.12), gridMinorColor: '#1a1e2e', gridMajorColor: '#00ffcc14' },
+  fogDensity: 0.010,
+  ground: { size: 600, baseColor: new C(0.06, 0.07, 0.12), gridMinorColor: '#1a1e2e', gridMajorColor: '#00ffcc14' },
   hemiIntensity: 0.7,
   hemiDiffuse:   new BABYLON.Color3(0.8, 0.88, 1.0),
   hemiGround:    new BABYLON.Color3(0.3, 0.25, 0.45),
@@ -131,6 +131,10 @@ export class Scene5 extends SceneBase {
 
   build() {
     this._buildGround(CFG.ground);
+
+    const ground = this._buildGround(CFG.ground);
+    ground.material = createPixelGroundMaterial(this.scene);
+
     this._buildStations();
     this._buildCables();
     this._buildTrolleys();
